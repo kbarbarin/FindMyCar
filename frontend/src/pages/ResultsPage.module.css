@@ -1,0 +1,86 @@
+.searchHeader { margin-bottom: var(--space-4); }
+.demoWrap { margin-bottom: var(--space-4); }
+
+.mobileBar { display: none; margin-bottom: var(--space-3); }
+.badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent); color: #fff;
+  font-size: 11px; font-weight: var(--weight-semibold);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.sidebar { min-width: 0; }
+
+.drawerHeader,
+.drawerFooter,
+.drawerClose {
+  display: none;
+}
+
+.backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(11, 14, 20, 0.5);
+  z-index: 49;
+}
+
+.main { display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+
+.partialBanner {
+  background: var(--color-warning-soft);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 30%, transparent);
+  color: #9A6700;
+  font-size: var(--text-sm);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 1fr; gap: var(--space-4); }
+  .mobileBar { display: flex; }
+
+  .sidebar {
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+    width: min(360px, 90vw);
+    background: var(--color-surface);
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 220ms ease;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    overflow-y: auto;
+  }
+  .sidebarOpen { transform: translateX(0); }
+
+  .drawerHeader {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    font-weight: var(--weight-semibold);
+    position: sticky; top: 0; background: var(--color-surface); z-index: 1;
+  }
+  .drawerClose {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: var(--radius-md);
+    color: var(--color-text-muted); background: transparent;
+  }
+  .drawerClose:hover { background: var(--color-surface-2); color: var(--color-text); }
+
+  .drawerFooter {
+    display: flex;
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--color-border);
+    position: sticky; bottom: 0; background: var(--color-surface);
+  }
+
+  .backdrop { display: block; }
+}

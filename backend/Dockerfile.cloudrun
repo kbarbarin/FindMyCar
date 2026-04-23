@@ -1,0 +1,23 @@
+# Variante Cloud Run avec Playwright + Chromium embarqués.
+# Plus lourd (~500 Mo) mais passe certaines protections anti-bot JS-only.
+# N'utiliser QUE si tu veux activer LaCentrale / Mobile.de / etc.
+# Sinon, garde Dockerfile (version light).
+
+FROM mcr.microsoft.com/playwright:v1.48.0-jammy AS deps
+WORKDIR /app
+COPY backend/package.json backend/package-lock.json ./
+RUN npm ci --omit=dev
+
+FROM mcr.microsoft.com/playwright:v1.48.0-jammy
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=8080
+ENV SCRAPER_ENGINE=auto
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY backend/package.json ./
+COPY backend/src ./src
+
+USER pwuser
+EXPOSE 8080
+CMD ["node", "src/server.js"]

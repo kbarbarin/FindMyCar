@@ -1,0 +1,238 @@
+[
+  {
+    "id": "as24-771-092",
+    "brand": "Toyota",
+    "modelName": "Prius+",
+    "version": "1.8 VVT-i Hybrid Active",
+    "price": {
+      "value": 11450,
+      "currency": "EUR",
+      "vatDeductible": false
+    },
+    "mileage": {
+      "value": 205000,
+      "unit": "km"
+    },
+    "firstRegistration": "2015-09",
+    "modelYear": 2015,
+    "fuel": "hybrid",
+    "transmission": "automatic",
+    "power": {
+      "hp": 136,
+      "kw": 100
+    },
+    "body": {
+      "type": "mpv",
+      "doors": 5,
+      "seats": 7,
+      "color": "grey"
+    },
+    "location": {
+      "country": "BE",
+      "region": "Brabant",
+      "city": "Leuven"
+    },
+    "seller": {
+      "type": "dealer",
+      "rating": 4.6
+    },
+    "equipment": [
+      "navigation",
+      "rear_camera",
+      "cruise_control"
+    ],
+    "photos": [],
+    "listingUrl": "https://www.autoscout24.com/offers/771-092",
+    "publishedAt": "2026-04-13T10:10:00Z",
+    "damageFree": true
+  },
+  {
+    "id": "as24-901-441",
+    "brand": "Toyota",
+    "modelName": "Prius +",
+    "version": "1.8 Hybrid Skyview",
+    "price": {
+      "value": 12900,
+      "currency": "EUR",
+      "vatDeductible": true
+    },
+    "mileage": {
+      "value": 206000,
+      "unit": "km"
+    },
+    "firstRegistration": "2017-06",
+    "modelYear": 2017,
+    "fuel": "hybrid",
+    "transmission": "automatic",
+    "power": {
+      "hp": 136,
+      "kw": 100
+    },
+    "body": {
+      "type": "mpv",
+      "doors": 5,
+      "seats": 7,
+      "color": "white"
+    },
+    "location": {
+      "country": "NL",
+      "region": "Noord-Holland",
+      "city": "Amsterdam"
+    },
+    "seller": {
+      "type": "dealer",
+      "rating": 4.8
+    },
+    "equipment": [
+      "navigation",
+      "leather",
+      "panoramic_roof",
+      "rear_camera"
+    ],
+    "photos": [],
+    "listingUrl": "https://www.autoscout24.com/offers/901-441",
+    "publishedAt": "2026-04-18T14:20:00Z",
+    "damageFree": true
+  },
+  {
+    "id": "as24-990-228",
+    "brand": "Toyota",
+    "modelName": "Prius+",
+    "version": "1.8 Hybrid Premium 7 seats",
+    "price": {
+      "value": 13450,
+      "currency": "EUR",
+      "vatDeductible": true
+    },
+    "mileage": {
+      "value": 213500,
+      "unit": "km"
+    },
+    "firstRegistration": "2018-10",
+    "modelYear": 2018,
+    "fuel": "hybrid",
+    "transmission": "automatic",
+    "power": {
+      "hp": 136,
+      "kw": 100
+    },
+    "body": {
+      "type": "mpv",
+      "doors": 5,
+      "seats": 7,
+      "color": "silver"
+    },
+    "location": {
+      "country": "BE",
+      "region": "Antwerpen",
+      "city": "Antwerpen"
+    },
+    "seller": {
+      "type": "dealer",
+      "rating": 4.7
+    },
+    "equipment": [
+      "navigation",
+      "rear_camera",
+      "adaptive_cruise",
+      "apple_carplay"
+    ],
+    "photos": [],
+    "listingUrl": "https://www.autoscout24.com/offers/990-228",
+    "publishedAt": "2026-04-16T13:05:00Z",
+    "damageFree": true
+  },
+  {
+    "id": "as24-553-210",
+    "brand": "Volkswagen",
+    "modelName": "Golf",
+    "version": "1.5 eTSI DSG Style",
+    "price": {
+      "value": 19990,
+      "currency": "EUR",
+      "vatDeductible": false
+    },
+    "mileage": {
+      "value": 54000,
+      "unit": "km"
+    },
+    "firstRegistration": "2021-03",
+    "modelYear": 2021,
+    "fuel": "petrol",
+    "transmission": "automatic",
+    "power": {
+      "hp": 150,
+      "kw": 110
+    },
+    "body": {
+      "type": "hatchback",
+      "doors": 5,
+      "seats": 5,
+      "color": "blue"
+    },
+    "location": {
+      "country": "DE",
+      "region": "Bayern",
+      "city": "Nürnberg"
+    },
+    "seller": {
+      "type": "dealer",
+      "rating": 4.5
+    },
+    "equipment": [
+      "navigation",
+      "led_headlights",
+      "adaptive_cruise"
+    ],
+    "photos": [],
+    "listingUrl": "https://www.autoscout24.com/offers/553-210",
+    "publishedAt": "2026-04-19T09:00:00Z",
+    "damageFree": true
+  },
+  {
+    "id": "as24-330-002",
+    "brand": "Skoda",
+    "modelName": "Octavia Combi",
+    "version": "2.0 TDI Style",
+    "price": {
+      "value": 16490,
+      "currency": "EUR",
+      "vatDeductible": true
+    },
+    "mileage": {
+      "value": 88000,
+      "unit": "km"
+    },
+    "firstRegistration": "2020-01",
+    "modelYear": 2020,
+    "fuel": "diesel",
+    "transmission": "manual",
+    "power": {
+      "hp": 150,
+      "kw": 110
+    },
+    "body": {
+      "type": "wagon",
+      "doors": 5,
+      "seats": 5,
+      "color": "grey"
+    },
+    "location": {
+      "country": "IT",
+      "region": "Lombardia",
+      "city": "Milano"
+    },
+    "seller": {
+      "type": "dealer",
+      "rating": 4.2
+    },
+    "equipment": [
+      "navigation",
+      "apple_carplay"
+    ],
+    "photos": [],
+    "listingUrl": "https://www.autoscout24.com/offers/330-002",
+    "publishedAt": "2026-04-12T13:00:00Z",
+    "damageFree": null
+  }
+]

@@ -1,0 +1,68 @@
+# Cloud Build : build + push image + deploy Cloud Run + deploy Firebase Hosting.
+# Déclenché manuellement (`gcloud builds submit`) ou via un trigger Git.
+#
+# Variables substituées :
+#   _REGION        → europe-west1 par défaut
+#   _SERVICE_NAME  → findmycar-backend
+#   _PROJECT_ID    → auto-détecté depuis gcloud
+
+steps:
+  # 1. Build de l'image backend
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - '-f'
+      - 'backend/Dockerfile.cloudrun'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/findmycar/backend:$SHORT_SHA'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/findmycar/backend:latest'
+      - '.'
+
+  # 2. Push vers Artifact Registry
+  - name: gcr.io/cloud-builders/docker
+    args: ['push', '--all-tags', '${_REGION}-docker.pkg.dev/$PROJECT_ID/findmycar/backend']
+
+  # 3. Deploy Cloud Run (avec variables d'env)
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/findmycar/backend:$SHORT_SHA'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--memory=1Gi'
+      - '--cpu=1'
+      - '--timeout=120'
+      - '--concurrency=20'
+      - '--max-instances=3'
+      - '--set-env-vars=NODE_ENV=production,SCRAPER_MODE=live,SCRAPER_ENGINE=auto,FIREBASE_PROJECT_ID=$PROJECT_ID,CORS_ORIGIN=https://$PROJECT_ID.web.app'
+      - '--set-secrets=SCHEDULER_SECRET=scheduler-secret:latest'
+
+  # 4. Build du frontend (VITE_API_URL pointe vers Cloud Run)
+  - name: node:20
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        cd frontend
+        npm ci
+        VITE_API_URL=https://${_SERVICE_NAME}-${_PROJECT_HASH}.${_REGION}.run.app npm run build
+    env:
+      - '_PROJECT_HASH=${_PROJECT_HASH}'
+
+  # 5. Deploy Firebase Hosting
+  - name: gcr.io/$PROJECT_ID/firebase
+    args: ['deploy', '--only', 'hosting', '--project', '$PROJECT_ID']
+
+substitutions:
+  _REGION: europe-west1
+  _SERVICE_NAME: findmycar-backend
+  _PROJECT_HASH: ''
+
+timeout: 1200s
+options:
+  logging: CLOUD_LOGGING_ONLY

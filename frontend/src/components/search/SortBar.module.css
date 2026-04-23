@@ -1,0 +1,12 @@
+.bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-2) 0;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.count { font-size: var(--text-sm); color: var(--color-text-muted); font-weight: var(--weight-medium); }
+.sortBox { width: 240px; }
+
+@media (max-width: 640px) {
+  .sortBox { width: 100%; max-width: 260px; }
+}

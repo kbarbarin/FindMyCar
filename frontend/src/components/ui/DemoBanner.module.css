@@ -1,0 +1,27 @@
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+.banner strong { font-weight: var(--weight-semibold); }
+.banner em { font-style: normal; font-weight: var(--weight-medium); }
+
+.demo {
+  background: var(--color-surface-2);
+  border: 1px dashed var(--color-border-strong);
+  color: var(--color-text-muted);
+}
+.live {
+  background: var(--color-success-soft);
+  border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent);
+  color: #065f46;
+}
+.partial {
+  background: var(--color-warning-soft);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 30%, transparent);
+  color: #9A6700;
+}

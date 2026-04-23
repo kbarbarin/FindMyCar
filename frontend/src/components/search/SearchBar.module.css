@@ -1,0 +1,34 @@
+.bar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: end;
+}
+.bar > form, .bar > div { width: 100%; }
+
+.samples {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-top: var(--space-2);
+}
+.sampleLabel { font-size: var(--text-xs); color: var(--color-text-subtle); margin-right: 4px; }
+.sample {
+  font-size: var(--text-xs);
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  text-align: left;
+}
+.sample:hover { background: var(--color-accent-soft); color: var(--color-accent); border-color: var(--color-accent-soft); }
+
+@media (max-width: 640px) {
+  .bar { grid-template-columns: 1fr; gap: var(--space-2); }
+  .sampleLabel { width: 100%; }
+}

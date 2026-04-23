@@ -1,0 +1,10 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.pad_none { padding: 0; }
+.pad_sm { padding: var(--space-3); }
+.pad_md { padding: var(--space-5); }
+.pad_lg { padding: var(--space-8); }

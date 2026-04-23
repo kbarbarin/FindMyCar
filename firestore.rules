@@ -1,0 +1,17 @@
+rules_version = '2';
+// Firestore security rules.
+// Les annonces sont écrites uniquement par le backend (via Admin SDK qui
+// bypass les rules). Les clients non auth peuvent LIRE mais pas écrire.
+// Les stats étant calculées depuis /listings, cette règle suffit.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /listings/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

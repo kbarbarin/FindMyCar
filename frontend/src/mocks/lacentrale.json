@@ -1,0 +1,198 @@
+[
+  {
+    "reference": "LC-22110",
+    "marque": "Toyota",
+    "modele": "Prius+",
+    "finition": "Dynamic Business",
+    "prix_ttc": 10490,
+    "km": 228000,
+    "annee_modele": 2015,
+    "mec": "2015-07-14",
+    "energie": "HYB",
+    "transmission": "BVA",
+    "ch_din": 136,
+    "nb_portes": 5,
+    "nb_places": 7,
+    "couleur_ext": "Argent",
+    "departement": "92",
+    "localite": "Nanterre",
+    "type_vendeur": "pro",
+    "premiere_main": true,
+    "equipements": [
+      "Navigation",
+      "Camera de recul",
+      "Cuir partiel"
+    ],
+    "photos": [],
+    "deeplink": "https://www.lacentrale.fr/auto-occasion-annonce-22110.html",
+    "mis_en_ligne": "2026-04-08T10:00:00Z",
+    "historique": {
+      "accident": false,
+      "carnet_complet": true
+    }
+  },
+  {
+    "reference": "LC-22480",
+    "marque": "Toyota",
+    "modele": "Prius+",
+    "finition": "Lounge",
+    "prix_ttc": 14900,
+    "km": 168000,
+    "annee_modele": 2017,
+    "mec": "2017-11-02",
+    "energie": "HYB",
+    "transmission": "BVA",
+    "ch_din": 136,
+    "nb_portes": 5,
+    "nb_places": 7,
+    "couleur_ext": "Blanc perle",
+    "departement": "31",
+    "localite": "Toulouse",
+    "type_vendeur": "pro",
+    "premiere_main": true,
+    "equipements": [
+      "Navigation",
+      "Cuir",
+      "Sieges chauffants",
+      "Toit ouvrant",
+      "Camera"
+    ],
+    "photos": [],
+    "deeplink": "https://www.lacentrale.fr/auto-occasion-annonce-22480.html",
+    "mis_en_ligne": "2026-04-16T09:00:00Z",
+    "historique": {
+      "accident": false,
+      "carnet_complet": true
+    }
+  },
+  {
+    "reference": "LC-24500",
+    "marque": "Toyota",
+    "modele": "Prius+",
+    "finition": "Dynamic",
+    "prix_ttc": 12690,
+    "km": 208500,
+    "annee_modele": 2018,
+    "mec": "2018-06-21",
+    "energie": "HYB",
+    "transmission": "BVA",
+    "ch_din": 136,
+    "nb_portes": 5,
+    "nb_places": 7,
+    "couleur_ext": "Gris",
+    "departement": "44",
+    "localite": "Nantes",
+    "type_vendeur": "pro",
+    "premiere_main": false,
+    "equipements": [
+      "Navigation",
+      "Camera de recul",
+      "Regulateur adaptatif",
+      "Apple CarPlay"
+    ],
+    "photos": [],
+    "deeplink": "https://www.lacentrale.fr/auto-occasion-annonce-24500.html",
+    "mis_en_ligne": "2026-04-15T12:00:00Z",
+    "historique": {
+      "accident": false,
+      "carnet_complet": true
+    }
+  },
+  {
+    "reference": "LC-25100",
+    "marque": "Toyota",
+    "modele": "Prius+",
+    "finition": "Lounge",
+    "prix_ttc": 14290,
+    "km": 217400,
+    "annee_modele": 2017,
+    "mec": "2017-02-08",
+    "energie": "HYB",
+    "transmission": "BVA",
+    "ch_din": 136,
+    "nb_portes": 5,
+    "nb_places": 7,
+    "couleur_ext": "Noir",
+    "departement": "13",
+    "localite": "Aix-en-Provence",
+    "type_vendeur": "particulier",
+    "premiere_main": true,
+    "equipements": [
+      "Navigation",
+      "Cuir",
+      "Toit ouvrant",
+      "Regulateur adaptatif"
+    ],
+    "photos": [],
+    "deeplink": "https://www.lacentrale.fr/auto-occasion-annonce-25100.html",
+    "mis_en_ligne": "2026-04-20T08:30:00Z",
+    "historique": {
+      "accident": false,
+      "carnet_complet": true
+    }
+  },
+  {
+    "reference": "LC-19940",
+    "marque": "Peugeot",
+    "modele": "308 SW",
+    "finition": "Allure",
+    "prix_ttc": 13990,
+    "km": 112500,
+    "annee_modele": 2018,
+    "mec": "2018-09-01",
+    "energie": "DIE",
+    "transmission": "BVM",
+    "ch_din": 130,
+    "nb_portes": 5,
+    "nb_places": 5,
+    "couleur_ext": "Bleu",
+    "departement": "69",
+    "localite": "Villeurbanne",
+    "type_vendeur": "pro",
+    "premiere_main": null,
+    "equipements": [
+      "Navigation",
+      "Apple CarPlay",
+      "Camera"
+    ],
+    "photos": [],
+    "deeplink": "https://www.lacentrale.fr/auto-occasion-annonce-19940.html",
+    "mis_en_ligne": "2026-04-13T08:00:00Z",
+    "historique": {
+      "accident": null,
+      "carnet_complet": null
+    }
+  },
+  {
+    "reference": "LC-31002",
+    "marque": "Tesla",
+    "modele": "Model 3",
+    "finition": "Long Range",
+    "prix_ttc": 28900,
+    "km": 61000,
+    "annee_modele": 2021,
+    "mec": "2021-03-12",
+    "energie": "ELE",
+    "transmission": "BVA",
+    "ch_din": 440,
+    "nb_portes": 4,
+    "nb_places": 5,
+    "couleur_ext": "Noir",
+    "departement": "75",
+    "localite": "Paris",
+    "type_vendeur": "pro",
+    "premiere_main": true,
+    "equipements": [
+      "Autopilot",
+      "Toit vitre",
+      "Sieges chauffants"
+    ],
+    "photos": [],
+    "deeplink": "https://www.lacentrale.fr/auto-occasion-annonce-31002.html",
+    "mis_en_ligne": "2026-04-19T16:00:00Z",
+    "historique": {
+      "accident": false,
+      "carnet_complet": true
+    }
+  }
+]

@@ -1,0 +1,75 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      # Par défaut : Dockerfile léger (fetch only). Pour Playwright, utilise le profil `browser` :
+      #   docker compose --profile browser up --build
+      dockerfile: Dockerfile
+    container_name: findmycar-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SCRAPER_MODE: ${SCRAPER_MODE:-hybrid}
+      SCRAPER_ENGINE: ${SCRAPER_ENGINE:-fetch}
+      SCRAPER_WARMUP: ${SCRAPER_WARMUP:-true}
+      SCRAPER_CONCURRENCY: ${SCRAPER_CONCURRENCY:-2}
+      HTTP_TIMEOUT: ${HTTP_TIMEOUT:-12000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-120}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-600}
+    ports:
+      - "3001:3000"
+    networks:
+      - fmc
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # Variante avec Playwright/Chromium (plus lourd, passe plus de protections anti-bot).
+  # Activation : docker compose --profile browser up --build
+  backend-browser:
+    profiles: ["browser"]
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.browser
+    container_name: findmycar-backend-browser
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SCRAPER_MODE: ${SCRAPER_MODE:-hybrid}
+      SCRAPER_ENGINE: browser
+      SCRAPER_WARMUP: "false"   # warmup est géré par Playwright lui-même
+      SCRAPER_CONCURRENCY: ${SCRAPER_CONCURRENCY:-2}
+      HTTP_TIMEOUT: ${HTTP_TIMEOUT:-25000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+    ports:
+      - "3001:3000"
+    networks:
+      - fmc
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${PUBLIC_API_URL:-http://localhost:3001}
+    container_name: findmycar-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - fmc
+
+networks:
+  fmc:
+    driver: bridge

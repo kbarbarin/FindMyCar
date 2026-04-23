@@ -1,0 +1,12 @@
+.list { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+
+.moreRow {
+  display: flex; justify-content: center;
+  padding: var(--space-6) 0 var(--space-2);
+}
+.endRow {
+  text-align: center;
+  padding: var(--space-6) 0 var(--space-2);
+  color: var(--color-text-subtle);
+  font-size: var(--text-sm);
+}

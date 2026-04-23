@@ -1,0 +1,25 @@
+# Dockerfile browser (~500 MB). Image Playwright officielle, Chromium préinstallé.
+# Utiliser pour SCRAPER_ENGINE=browser.
+#
+# Build :  docker build -f Dockerfile.browser -t findmycar-backend:browser .
+# Run   :  docker run -p 3001:3000 -e SCRAPER_ENGINE=browser findmycar-backend:browser
+
+FROM mcr.microsoft.com/playwright:v1.47.0-jammy AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+FROM mcr.microsoft.com/playwright:v1.47.0-jammy
+WORKDIR /app
+ENV NODE_ENV=production
+ENV SCRAPER_ENGINE=browser
+
+# L'image Playwright a déjà pwuser / chromium en /ms-playwright
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json ./
+COPY src ./src
+USER pwuser
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/api/health > /dev/null || exit 1
+CMD ["node", "src/server.js"]
