@@ -188,3 +188,32 @@
 @media (max-width: 480px) {
   .sampleLabel { width: 100%; padding-top: 0; }
 }
+
+/* Lien "Sonder toutes les plateformes" — action secondaire discrete */
+.bulkLink {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.bulkLink:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-deep);
+  color: var(--color-accent-deep);
+  border-style: solid;
+}
+.bulkLink:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

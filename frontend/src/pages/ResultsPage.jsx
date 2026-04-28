@@ -16,20 +16,40 @@ import SourceStatusPanel from '../components/search/SourceStatusPanel.jsx';
 import CacheStatusBar from '../components/search/CacheStatusBar.jsx';
 import ScrapingProgressBar from '../components/search/ScrapingProgressBar.jsx';
 import { useCriteriaQuery } from '../hooks/useQueryParams.js';
-import { useSearch } from '../hooks/useSearch.js';
+import { useStreamingSearch } from '../hooks/useStreamingSearch.js';
 import { useSearchStore } from '../store/searchStore.js';
 import { SOURCE_META_BY_ID } from '../constants/sources.js';
 import styles from './ResultsPage.module.css';
 
 export default function ResultsPage() {
   const [criteria, setCriteria] = useCriteriaQuery();
-  const {
-    status, results, suggestions, error,
-    partialSources, sourceStats, fromBackend,
-    cacheStatus, durationMs, forceRescrape, liveCount,
-  } = useSearch(criteria);
-  const rawCount = useSearchStore((s) => s.rawCount);
+
+  // Nonce qui sert à forcer un rescrap : on l'incrémente, ça change le JSON
+  // stringifié des critères → useStreamingSearch redéclenche le flow.
+  const [rescrapeNonce, setRescrapeNonce] = useState(0);
+  const effectiveCriteria = rescrapeNonce > 0
+    ? { ...criteria, fresh: true, _rescrap: rescrapeNonce }
+    : criteria;
+
+  // Streaming = SEULE source de fetch. Le hook alimente le store en temps réel.
+  useStreamingSearch(effectiveCriteria);
+
+  // Lecture du store (rempli par useStreamingSearch)
+  const status           = useSearchStore((s) => s.status);
+  const results          = useSearchStore((s) => s.results);
+  const suggestions      = useSearchStore((s) => s.suggestions);
+  const error            = useSearchStore((s) => s.error);
+  const partialSources   = useSearchStore((s) => s.partialSources);
+  const sourceStats      = useSearchStore((s) => s.sourceStats);
+  const fromBackend      = useSearchStore((s) => s.fromBackend);
+  const cacheStatus      = useSearchStore((s) => s.cacheStatus);
+  const durationMs       = useSearchStore((s) => s.durationMs);
+  const liveCount        = useSearchStore((s) => s.liveCount);
+  const rawCount         = useSearchStore((s) => s.rawCount);
   const sourcesAttempted = useSearchStore((s) => s.sourcesAttempted);
+
+  const forceRescrape = () => setRescrapeNonce((n) => n + 1);
+
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 

@@ -86,7 +86,31 @@ export default function AdvancedFiltersPanel({ criteria, onChange, onReset }) {
         />
       </Section>
 
-      <Section title="Sources">
+      <Section title={`Sources (${(criteria.sources || []).length || 'auto'} / ${SOURCES_META.length})`}>
+        <div className={styles.bulkRow}>
+          <button
+            type="button"
+            className={styles.bulkBtn}
+            onClick={() => onChange({ sources: SOURCES_META.map((s) => s.id) })}
+            title="Force toutes les 44 sources, y compris celles désactivées"
+          >
+            Toutes ({SOURCES_META.length})
+          </button>
+          <button
+            type="button"
+            className={styles.bulkBtn}
+            onClick={() => onChange({ sources: null })}
+          >
+            Auto (sources actives)
+          </button>
+          <button
+            type="button"
+            className={styles.bulkBtn}
+            onClick={() => onChange({ sources: [] })}
+          >
+            Aucune
+          </button>
+        </div>
         <ChipGroup
           items={SOURCES_META.map((s) => ({ id: s.id, label: s.label }))}
           selected={criteria.sources || []}

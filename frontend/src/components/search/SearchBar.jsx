@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { Search, ArrowRight } from 'lucide-react';
+import { Search, ArrowRight, Globe } from 'lucide-react';
 import { parseText } from '../../services/search/queryParser.js';
 import { criteriaToParams } from '../../utils/url.js';
+import { SOURCES_META } from '../../constants/sources.js';
 import styles from './SearchBar.module.css';
 
 const SAMPLES = [
@@ -12,12 +13,14 @@ const SAMPLES = [
   { label: 'Tesla Model 3', tag: 'electrique' },
 ];
 
+const ALL_SOURCE_IDS = SOURCES_META.map((s) => s.id);
+
 export default function SearchBar({ defaultValue = '', autoFocus = false, size = 'lg' }) {
   const [value, setValue] = useState(defaultValue);
   const navigate = useNavigate();
 
-  function go(text) {
-    const patch = parseText(text);
+  function go(text, extraPatch = {}) {
+    const patch = { ...parseText(text), ...extraPatch };
     const params = criteriaToParams(patch);
     navigate({ pathname: '/search', search: createSearchParams(params).toString() });
   }
@@ -26,6 +29,11 @@ export default function SearchBar({ defaultValue = '', autoFocus = false, size =
     e?.preventDefault?.();
     if (!value.trim()) return;
     go(value);
+  }
+
+  function searchAllPlatforms() {
+    if (!value.trim()) return;
+    go(value, { sources: ALL_SOURCE_IDS });
   }
 
   function applySample(text) {
@@ -77,6 +85,19 @@ export default function SearchBar({ defaultValue = '', autoFocus = false, size =
             ))}
           </div>
         </div>
+      )}
+
+      {size === 'lg' && (
+        <button
+          type="button"
+          className={styles.bulkLink}
+          onClick={searchAllPlatforms}
+          disabled={!value.trim()}
+          title="Force le scraping sur les 44 sources du catalogue"
+        >
+          <Globe size={14} strokeWidth={1.8} />
+          <span>Sonder les {ALL_SOURCE_IDS.length} plateformes europeennes</span>
+        </button>
       )}
     </form>
   );

@@ -22,7 +22,12 @@ import {
   parseMileage, yearFromAny, parseFirstRegistration,
 } from '../normalizers/taxonomy.js';
 
-const DEFAULT_STRATEGIES = ['json-ld', 'next-data', 'nuxt-data', 'initial-state', 'selectors'];
+const DEFAULT_STRATEGIES = [
+  'json-ld', 'next-data', 'nuxt-data', 'initial-state',
+  'inline-json',     // <script type="application/json"> non-LD
+  'window-state',    // window.__... = { ... } via regex
+  'selectors',
+];
 
 export class GenericScraper extends BaseScraper {
   constructor(catalogEntry) {
@@ -105,9 +110,44 @@ function runStrategy(strategy, html, cfg, baseUrl) {
     case 'next-data':      return extractScriptJson(html, '__NEXT_DATA__', cfg, baseUrl);
     case 'nuxt-data':      return extractScriptJson(html, '__NUXT_DATA__', cfg, baseUrl);
     case 'initial-state':  return extractScriptJson(html, '__INITIAL_STATE__', cfg, baseUrl);
+    case 'inline-json':    return extractInlineJson(html, cfg, baseUrl);
+    case 'window-state':   return extractWindowState(html, cfg, baseUrl);
     case 'selectors':      return extractWithSelectors(html, cfg, baseUrl);
     default: throw new Error(`unknown_strategy:${strategy}`);
   }
+}
+
+// Stratégie 6 : <script type="application/json"> non-LD. Beaucoup de SPA y mettent
+// leur état initial sans utiliser les conventions Next/Nuxt.
+function extractInlineJson(html, cfg, baseUrl) {
+  const $ = load(html);
+  const scripts = $('script[type="application/json"]').toArray();
+  for (const el of scripts) {
+    const txt = $(el).contents().text();
+    if (!txt || txt.length < 100) continue;
+    try {
+      const data = JSON.parse(txt);
+      const ads = findAdArray(data);
+      if (ads.length) return ads.map((ad) => genericAdToRaw(ad, cfg, baseUrl));
+    } catch { /* skip */ }
+  }
+  throw new Error('no_inline_json_with_ads');
+}
+
+// Stratégie 7 : window.__XXX__ = {...}; assigné en JS inline.
+// Ex : window.__APOLLO_STATE__, window.__data, INITIAL_STATE = {...}, etc.
+function extractWindowState(html, cfg, baseUrl) {
+  const re = /(?:window\.[A-Z_$][A-Za-z0-9_$]*|var\s+[A-Z_$][A-Za-z0-9_$]*)\s*=\s*(\{[\s\S]*?\})\s*;[\s\S]*?<\/script>/g;
+  let m;
+  while ((m = re.exec(html))) {
+    if (m[1].length < 200) continue;
+    try {
+      const data = JSON.parse(m[1]);
+      const ads = findAdArray(data);
+      if (ads.length) return ads.map((ad) => genericAdToRaw(ad, cfg, baseUrl));
+    } catch { /* essaie le suivant */ }
+  }
+  throw new Error('no_window_state');
 }
 
 // Stratégie 1 : JSON-LD. Cherche les balises <script type="application/ld+json">

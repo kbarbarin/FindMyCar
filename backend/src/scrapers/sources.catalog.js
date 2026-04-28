@@ -99,7 +99,7 @@ export const SOURCES_CATALOG = [
     implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
-      return `https://www.pkw.de/gebrauchtwagen${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+      return `https://www.pkw.de/${q ? `?keyword=${encodeURIComponent(q)}` : ''}`;
     },
     generic: { ...genericDefault, selectors: { cards: '.car-listing, article.offer', title: 'h3, .title', price: '.price', year: '.year', mileage: '.mileage' } },
   },
@@ -142,8 +142,8 @@ export const SOURCES_CATALOG = [
     baseUrl: 'https://www.coches.com',
     implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
-      const q = [make, model].filter(Boolean).join('-').toLowerCase();
-      return `https://www.coches.com/coches-segunda-mano${q ? `/${encodeURIComponent(q)}` : ''}.html`;
+      const q = [make, model].filter(Boolean).join(' ');
+      return `https://www.coches.com/coches-segunda-mano/${q ? `?text=${encodeURIComponent(q)}` : ''}`;
     },
     generic: genericDefault,
   },
@@ -186,9 +186,8 @@ export const SOURCES_CATALOG = [
     baseUrl: 'https://www.automobile.it',
     implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
-      const m = make ? `/${encodeURIComponent(make.toLowerCase())}` : '';
-      const mo = model ? `/${encodeURIComponent(model.toLowerCase())}` : '';
-      return `https://www.automobile.it/annunci${m}${mo}`;
+      const q = [make, model].filter(Boolean).join(' ');
+      return `https://www.automobile.it/${q ? `?q=${encodeURIComponent(q)}` : ''}`;
     },
     generic: genericDefault,
   },
@@ -242,7 +241,7 @@ export const SOURCES_CATALOG = [
     implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
-      return `https://www.luxauto.lu/voitures${q ? `?search=${encodeURIComponent(q)}` : ''}`;
+      return `https://www.luxauto.lu/${q ? `?search=${encodeURIComponent(q)}` : ''}`;
     },
     generic: genericDefault,
   },
@@ -277,7 +276,7 @@ export const SOURCES_CATALOG = [
     implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
-      return `https://www.custojusto.pt/autos${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+      return `https://www.custojusto.pt/anuncios/carros${q ? `?q=${encodeURIComponent(q)}` : ''}`;
     },
     generic: genericDefault,
   },
@@ -366,7 +365,7 @@ export const SOURCES_CATALOG = [
     implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
-      return `https://bytbil.com/bilar${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+      return `https://bytbil.com/${q ? `?q=${encodeURIComponent(q)}` : ''}`;
     },
     generic: { ...genericDefault, currency: 'SEK' },
   },
@@ -391,7 +390,7 @@ export const SOURCES_CATALOG = [
     implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
-      return `https://www.tori.fi/autot${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+      return `https://www.tori.fi/koko_suomi/autot_ja_ajoneuvot/autot${q ? `?q=${encodeURIComponent(q)}` : ''}`;
     },
     generic: genericDefault,
   },
