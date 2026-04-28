@@ -1,21 +1,36 @@
 .bar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
-  padding: 8px 14px;
+  padding: 10px 16px;
   border-radius: var(--radius-md);
   font-size: var(--text-xs);
   flex-wrap: wrap;
+  border: 1px solid transparent;
 }
-.left { display: inline-flex; align-items: center; gap: 8px; }
-.bar strong { font-weight: var(--weight-semibold); }
+.left {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.bar strong {
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-sans);
+  letter-spacing: -0.01em;
+}
 
 .cache {
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
+  background: var(--color-info-soft);
+  color: var(--color-info);
+  border-color: color-mix(in srgb, var(--color-info) 25%, transparent);
 }
 .live {
   background: var(--color-success-soft);
-  color: #065f46;
+  color: var(--color-success-ink);
+  border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
 }
 
 .spinning { animation: spin 0.8s linear infinite; }

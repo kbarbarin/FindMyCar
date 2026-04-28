@@ -1,17 +1,53 @@
 .badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
   font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
   line-height: 1;
   border: 1px solid transparent;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
-.size_sm { padding: 2px 8px; font-size: 11px; height: 20px; }
-.size_md { padding: 4px 10px; font-size: var(--text-xs); height: 24px; }
-.size_lg { padding: 6px 12px; font-size: var(--text-sm); height: 28px; }
 
-.variant_neutral { background: var(--color-surface-3); color: var(--color-text-muted); }
-.variant_accent  { background: var(--color-accent-soft); color: var(--color-accent); }
-.variant_success { background: var(--color-success-soft); color: var(--color-success); }
-.variant_warning { background: var(--color-warning-soft); color: #9A6700; }
-.variant_danger  { background: var(--color-danger-soft); color: var(--color-danger); }
-.variant_outline { background: var(--color-surface); color: var(--color-text-muted); border-color: var(--color-border); }
+.size_sm { padding: 3px 7px; font-size: 10px; height: 20px; }
+.size_md { padding: 4px 9px; font-size: 11px; height: 24px; }
+.size_lg { padding: 6px 12px; font-size: 12px; height: 28px; }
+
+.variant_neutral {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+.variant_accent {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-deep);
+  border-color: color-mix(in srgb, var(--color-accent-deep) 30%, transparent);
+}
+.variant_success {
+  background: var(--color-success-soft);
+  color: var(--color-success-ink);
+  border-color: color-mix(in srgb, var(--color-success) 30%, transparent);
+}
+.variant_warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning-ink);
+  border-color: color-mix(in srgb, var(--color-warning) 35%, transparent);
+}
+.variant_danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-ink);
+  border-color: color-mix(in srgb, var(--color-danger) 35%, transparent);
+}
+.variant_outline {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+.variant_ink {
+  background: var(--color-ink);
+  color: var(--color-text-on-ink);
+  border-color: var(--color-ink);
+}

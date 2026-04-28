@@ -1,12 +1,32 @@
 .bar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: var(--space-2) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
   gap: var(--space-3);
   flex-wrap: wrap;
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
-.count { font-size: var(--text-sm); color: var(--color-text-muted); font-weight: var(--weight-medium); }
+.count {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  font-weight: var(--weight-medium);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.count::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
+}
 .sortBox { width: 240px; }
 
 @media (max-width: 640px) {
-  .sortBox { width: 100%; max-width: 260px; }
+  .sortBox { width: 100%; max-width: none; }
 }

@@ -14,8 +14,10 @@ import Button from '../components/ui/Button.jsx';
 import DemoBanner from '../components/ui/DemoBanner.jsx';
 import SourceStatusPanel from '../components/search/SourceStatusPanel.jsx';
 import CacheStatusBar from '../components/search/CacheStatusBar.jsx';
+import ScrapingProgressBar from '../components/search/ScrapingProgressBar.jsx';
 import { useCriteriaQuery } from '../hooks/useQueryParams.js';
 import { useSearch } from '../hooks/useSearch.js';
+import { useSearchStore } from '../store/searchStore.js';
 import { SOURCE_META_BY_ID } from '../constants/sources.js';
 import styles from './ResultsPage.module.css';
 
@@ -24,8 +26,10 @@ export default function ResultsPage() {
   const {
     status, results, suggestions, error,
     partialSources, sourceStats, fromBackend,
-    cacheStatus, durationMs, forceRescrape,
+    cacheStatus, durationMs, forceRescrape, liveCount,
   } = useSearch(criteria);
+  const rawCount = useSearchStore((s) => s.rawCount);
+  const sourcesAttempted = useSearchStore((s) => s.sourcesAttempted);
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -61,6 +65,19 @@ export default function ResultsPage() {
       <div className={styles.demoWrap}>
         <DemoBanner fromBackend={fromBackend} sourceStats={sourceStats} partialSources={partialSources} />
       </div>
+
+      {sourceStats && (
+        <div className={styles.demoWrap}>
+          <ScrapingProgressBar
+            sourceStats={sourceStats}
+            status={status}
+            liveCount={liveCount}
+            rawCount={rawCount}
+            sourcesAttempted={sourcesAttempted}
+            durationMs={durationMs}
+          />
+        </div>
+      )}
 
       {cacheStatus && (
         <div className={styles.demoWrap}>

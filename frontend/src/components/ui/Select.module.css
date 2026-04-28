@@ -1,34 +1,60 @@
-.wrapper { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-.label { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--color-text-muted); }
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-subtle);
+  font-weight: var(--weight-medium);
+}
+
 .field {
   position: relative;
-  background: var(--color-surface);
+  background: var(--color-paper);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.field:focus-within { border-color: var(--color-accent); box-shadow: var(--focus-ring); }
+.field:hover { border-color: var(--color-border-strong); }
+.field:focus-within {
+  border-color: var(--color-accent-deep);
+  box-shadow: var(--focus-ring);
+}
 .fieldError { border-color: var(--color-danger); }
 
 .select {
   appearance: none;
   width: 100%;
-  height: 40px;
-  padding: 0 36px 0 12px;
+  height: 42px;
+  padding: 0 40px 0 14px;
   background: transparent;
-  border: none; outline: none;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans);
   font-size: var(--text-base);
+  color: var(--color-text);
   cursor: pointer;
 }
+
 .field::after {
   content: '';
   position: absolute;
-  right: 14px; top: 50%;
-  width: 8px; height: 8px;
-  border-right: 2px solid var(--color-text-subtle);
-  border-bottom: 2px solid var(--color-text-subtle);
+  right: 16px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--color-text-muted);
+  border-bottom: 1.5px solid var(--color-text-muted);
   transform: translateY(-70%) rotate(45deg);
   pointer-events: none;
+  transition: border-color var(--transition-fast);
 }
-.hint { font-size: var(--text-xs); color: var(--color-text-subtle); }
-.error { font-size: var(--text-xs); color: var(--color-danger); }
+.field:focus-within::after { border-color: var(--color-accent-deep); }
+
+.hint  { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--color-text-subtle); }
+.error { font-size: var(--text-xs); color: var(--color-danger); font-weight: var(--weight-medium); }
