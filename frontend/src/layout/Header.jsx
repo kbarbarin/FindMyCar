@@ -5,28 +5,58 @@ import styles from './Header.module.css';
 export default function Header() {
   return (
     <header className={styles.header}>
+      <div className={styles.scanline} aria-hidden />
       <div className={`container ${styles.row}`}>
         <Link to="/" className={styles.brand} aria-label="FindMyCar — accueil">
           <span className={styles.logoMark} aria-hidden>
-            <svg viewBox="0 0 32 32" width="22" height="22">
-              <rect width="32" height="32" rx="7" fill="#0B0E14"/>
-              <path d="M7 19c0-.6.4-1 1-1h1.3l1.2-3.7A3 3 0 0 1 13.4 12h5.2a3 3 0 0 1 2.9 2.3L22.7 18H24c.6 0 1 .4 1 1v3c0 .6-.4 1-1 1h-1v1a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1h-7v1a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-1H8a1 1 0 0 1-1-1v-3Z" fill="#2D5BFF"/>
-              <circle cx="10.8" cy="20.5" r="1.4" fill="#fff"/>
-              <circle cx="21.2" cy="20.5" r="1.4" fill="#fff"/>
+            <svg viewBox="0 0 44 44" width="40" height="40">
+              <defs>
+                <radialGradient id="fmc-radar" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#E8B042" stopOpacity="0" />
+                  <stop offset="65%" stopColor="#E8B042" stopOpacity="0.18" />
+                  <stop offset="100%" stopColor="#E8B042" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+              {/* Cadre du viseur radar */}
+              <circle cx="22" cy="22" r="20" fill="url(#fmc-radar)" />
+              <circle cx="22" cy="22" r="20" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.9" />
+              <circle cx="22" cy="22" r="13.5" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.45" />
+              <circle cx="22" cy="22" r="7" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.45" />
+              {/* Croix de visee */}
+              <line x1="22" y1="2" x2="22" y2="42" stroke="currentColor" strokeWidth="0.6" opacity="0.5" />
+              <line x1="2" y1="22" x2="42" y2="22" stroke="currentColor" strokeWidth="0.6" opacity="0.5" />
+              {/* Voiture stylisee au centre */}
+              <g transform="translate(8 18)">
+                <path
+                  d="M1 6c0-0.6 0.4-1 1-1h1.6L4.7 1.6A2.2 2.2 0 0 1 6.8 0h14.4a2.2 2.2 0 0 1 2.1 1.6L24.4 5H26c0.6 0 1 0.4 1 1v2c0 0.6-0.4 1-1 1h-0.5a2.5 2.5 0 0 1-5 0H7.5a2.5 2.5 0 0 1-5 0H2c-0.6 0-1-0.4-1-1V6Z"
+                  fill="#E8B042"
+                />
+                <circle cx="5" cy="9" r="1.4" fill="#101216" />
+                <circle cx="23" cy="9" r="1.4" fill="#101216" />
+              </g>
+              {/* Pointeur radar */}
+              <line x1="22" y1="22" x2="38" y2="14" stroke="#E8B042" strokeWidth="1.4" strokeLinecap="round" />
             </svg>
           </span>
-          <span className={styles.logoText}>FindMyCar</span>
+          <span className={styles.logoTextWrap}>
+            <span className={styles.logoText}>
+              <span className={styles.logoFind}>find</span>
+              <span className={styles.logoMy}>my</span>
+              <span className={styles.logoCar}>car</span>
+            </span>
+            <span className={styles.logoTag}>cockpit europe</span>
+          </span>
         </Link>
 
         <nav className={styles.nav} aria-label="Navigation principale">
           <NavLink to="/search" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
-            <Search size={16} /> Recherche
+            <Search size={15} /> <span>Recherche</span>
           </NavLink>
           <NavLink to="/stats" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
-            <BarChart3 size={16} /> Stats
+            <BarChart3 size={15} /> <span>Marche</span>
           </NavLink>
           <NavLink to="/favorites" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
-            <Heart size={16} /> Favoris
+            <Heart size={15} /> <span>Garage</span>
           </NavLink>
         </nav>
       </div>

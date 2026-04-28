@@ -1,48 +1,114 @@
+/* === États (empty, error, loading) === */
+
 .state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: var(--space-10) var(--space-6);
+  padding: var(--space-12) var(--space-6);
   gap: var(--space-3);
-  background: var(--color-surface);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
-}
-.iconWrap {
-  width: 48px; height: 48px;
-  display: inline-flex; align-items: center; justify-content: center;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-2);
-  color: var(--color-text-muted);
-}
-.title { font-size: var(--text-lg); font-weight: var(--weight-semibold); color: var(--color-text); }
-.description { font-size: var(--text-base); color: var(--color-text-muted); max-width: 420px; }
-.actions { margin-top: var(--space-3); display: flex; gap: var(--space-3); }
-
-.skeletonList { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
-.skeletonCard {
-  display: grid; grid-template-columns: 200px 1fr; gap: var(--space-4);
-  padding: var(--space-4);
-  background: var(--color-surface);
+  background: var(--color-paper);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
 }
+
+/* Bordure pointillée façon plan technique */
+.state::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed var(--color-border);
+  border-radius: calc(var(--radius-lg) - 4px);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.iconWrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-accent-deep);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 0 6px var(--color-paper), 0 0 0 7px var(--color-border);
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--text-xl);
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.description {
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  max-width: 460px;
+  line-height: var(--leading-normal);
+}
+
+.actions {
+  margin-top: var(--space-3);
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* === Skeleton loading === */
+.skeletonList { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+
+.skeletonCard {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  padding: 0;
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
 .skeletonThumb {
-  aspect-ratio: 16 / 10;
-  background: linear-gradient(90deg, var(--color-surface-3) 0%, var(--color-surface-2) 50%, var(--color-surface-3) 100%);
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-3) 0%,
+    var(--color-surface-2) 50%,
+    var(--color-surface-3) 100%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: var(--radius-md);
+  animation: shimmer 1.6s infinite linear;
 }
+
 .skeletonLine {
-  height: 12px; border-radius: 4px;
-  background: linear-gradient(90deg, var(--color-surface-3) 0%, var(--color-surface-2) 50%, var(--color-surface-3) 100%);
+  height: 12px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-3) 0%,
+    var(--color-surface-2) 50%,
+    var(--color-surface-3) 100%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.4s infinite linear;
+  animation: shimmer 1.6s infinite linear;
 }
-.skeletonLines { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; }
+.skeletonLines {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: var(--space-5);
+}
 .w80 { width: 80%; }
 .w60 { width: 60%; }
 .w40 { width: 40%; }
@@ -50,4 +116,9 @@
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to   { background-position: -200% 0; }
+}
+
+@media (max-width: 720px) {
+  .skeletonCard { grid-template-columns: 1fr; }
+  .skeletonThumb { aspect-ratio: 16 / 9; }
 }

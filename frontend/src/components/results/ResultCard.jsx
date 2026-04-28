@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Heart, MapPin, TrendingDown } from 'lucide-react';
-import Card from '../ui/Card.jsx';
 import Badge from '../ui/Badge.jsx';
 import CarImage from '../ui/CarImage.jsx';
 import SourceBadge from '../listing/SourceBadge.jsx';
@@ -20,7 +19,7 @@ export default function ResultCard({ listing }) {
   const hasImportOpportunity = importMeta?.marketDeltaEstimate != null && importMeta.marketDeltaEstimate < -500;
 
   return (
-    <Card padding="none" className={styles.card}>
+    <article className={styles.card}>
       <Link to={detailUrl} state={{ listing }} className={styles.media} aria-label={`Voir ${listing.title || 'annonce'}`}>
         <CarImage src={listing.photos?.[0]} alt={listing.title} make={listing.make} model={listing.model} />
       </Link>
@@ -37,7 +36,7 @@ export default function ResultCard({ listing }) {
             aria-label={isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
             aria-pressed={isFav}
           >
-            <Heart size={18} fill={isFav ? 'currentColor' : 'none'} />
+            <Heart size={17} fill={isFav ? 'currentColor' : 'none'} strokeWidth={1.6} />
           </button>
         </div>
 
@@ -52,12 +51,12 @@ export default function ResultCard({ listing }) {
 
         <div className={styles.meta}>
           <span className={styles.location}>
-            <MapPin size={14} aria-hidden /> {[listing.city, listing.country].filter(Boolean).join(' · ')}
+            <MapPin size={13} aria-hidden /> {[listing.city, listing.country].filter(Boolean).join(' · ')}
           </span>
           <div className={styles.badges}>
             <CountryBadge code={listing.country} />
             <SourceBadge source={listing.source} />
-            {listing.history?.firstHand === true && <Badge variant="outline" size="sm">1ère main</Badge>}
+            {listing.history?.firstHand === true && <Badge variant="outline" size="sm">1ere main</Badge>}
             {listing.history?.accidentFree === true && <Badge variant="outline" size="sm">Sans accident</Badge>}
           </div>
         </div>
@@ -67,18 +66,18 @@ export default function ResultCard({ listing }) {
             <div className={`${styles.price} tabular`}>{formatPrice(listing.price?.amount, listing.price?.currency)}</div>
             {importMeta?.importedPriceEstimate != null && (
               <div className={styles.priceImport}>
-                Estimé importé <span className="tabular">{formatPrice(importMeta.importedPriceEstimate, 'EUR')}</span>
+                Importe ~{formatPrice(importMeta.importedPriceEstimate, 'EUR')}
               </div>
             )}
           </div>
           {hasImportOpportunity && (
             <Badge variant="success" size="md">
-              <TrendingDown size={12} /> Opportunité import
+              <TrendingDown size={11} /> Opportunite
             </Badge>
           )}
         </div>
       </div>
-    </Card>
+    </article>
   );
 }
 

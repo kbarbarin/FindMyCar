@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import Input from '../ui/Input.jsx';
-import Button from '../ui/Button.jsx';
+import { Search, ArrowRight } from 'lucide-react';
 import { parseText } from '../../services/search/queryParser.js';
 import { criteriaToParams } from '../../utils/url.js';
 import styles from './SearchBar.module.css';
 
 const SAMPLES = [
-  'Toyota Prius+ moins de 10 ans plus de 200 000 km',
-  'Peugeot 308 SW diesel',
-  'Volvo V90 Allemagne',
-  'Tesla Model 3',
+  { label: 'Toyota Prius+ moins de 10 ans plus de 200 000 km', tag: 'familial' },
+  { label: 'Peugeot 308 SW diesel', tag: 'break' },
+  { label: 'Volvo V90 Allemagne', tag: 'import' },
+  { label: 'Tesla Model 3', tag: 'electrique' },
 ];
 
 export default function SearchBar({ defaultValue = '', autoFocus = false, size = 'lg' }) {
@@ -21,7 +19,6 @@ export default function SearchBar({ defaultValue = '', autoFocus = false, size =
   function go(text) {
     const patch = parseText(text);
     const params = criteriaToParams(patch);
-    // createSearchParams + navigate(to object) garantit le bon encodage par React Router.
     navigate({ pathname: '/search', search: createSearchParams(params).toString() });
   }
 
@@ -37,23 +34,48 @@ export default function SearchBar({ defaultValue = '', autoFocus = false, size =
   }
 
   return (
-    <form className={styles.bar} onSubmit={submit} role="search" aria-label="Recherche de voitures d'occasion">
-      <Input
-        leftIcon={<Search size={18} />}
-        placeholder="Ex : Toyota Prius+ moins de 10 ans plus de 200 000 km"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        autoFocus={autoFocus}
-      />
-      <Button type="submit" size={size}>Rechercher</Button>
+    <form
+      className={[styles.wrap, styles[`size_${size}`]].join(' ')}
+      onSubmit={submit}
+      role="search"
+      aria-label="Recherche de voitures d'occasion"
+    >
+      <div className={styles.barFrame}>
+        <div className={styles.scanline} aria-hidden />
+        <span className={styles.barIcon} aria-hidden>
+          <Search size={size === 'lg' ? 20 : 18} strokeWidth={1.6} />
+        </span>
+        <input
+          className={styles.barInput}
+          type="text"
+          placeholder="Decrivez votre voiture ideale..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          autoFocus={autoFocus}
+          aria-label="Saisir une recherche"
+        />
+        <button type="submit" className={styles.barSubmit}>
+          <span>Rechercher</span>
+          <ArrowRight size={16} strokeWidth={1.8} />
+        </button>
+      </div>
+
       {size === 'lg' && (
         <div className={styles.samples}>
-          <span className={styles.sampleLabel}>Exemples :</span>
-          {SAMPLES.map((s) => (
-            <button key={s} type="button" className={styles.sample} onClick={() => applySample(s)}>
-              {s}
-            </button>
-          ))}
+          <span className={styles.sampleLabel}>Suggestions :</span>
+          <div className={styles.sampleChips}>
+            {SAMPLES.map((s) => (
+              <button
+                key={s.label}
+                type="button"
+                className={styles.sample}
+                onClick={() => applySample(s.label)}
+              >
+                <span className={styles.sampleTag}>{s.tag}</span>
+                <span>{s.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </form>

@@ -1,31 +1,77 @@
-.wrapper { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-.label { font-size: var(--text-sm); font-weight: var(--weight-medium); color: var(--color-text-muted); }
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-subtle);
+  font-weight: var(--weight-medium);
+}
+
 .field {
-  display: flex; align-items: center; gap: var(--space-2);
-  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-paper);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 0 12px;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  padding: 0 14px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
-.field:focus-within { border-color: var(--color-accent); box-shadow: var(--focus-ring); }
+.field:hover { border-color: var(--color-border-strong); }
+.field:focus-within {
+  border-color: var(--color-accent-deep);
+  box-shadow: var(--focus-ring);
+  background: var(--color-surface);
+}
 .fieldError { border-color: var(--color-danger); }
 
 .input {
-  flex: 1; min-width: 0;
-  height: 40px;
+  flex: 1;
+  min-width: 0;
+  height: 42px;
   background: transparent;
-  border: none; outline: none;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans);
   font-size: var(--text-base);
+  color: var(--color-text);
 }
-/* Le focus ring est géré par .field via :focus-within. On supprime celui que
-   global.css ajoute par défaut sur tout élément focusable, sinon on a un
-   double cadre (ring sur input ET sur field). */
 .input:focus,
 .input:focus-visible { outline: none; box-shadow: none; }
-.input::placeholder { color: var(--color-text-subtle); }
+.input::placeholder {
+  color: var(--color-text-subtle);
+  font-style: italic;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+}
 
-.adornment { color: var(--color-text-subtle); display: inline-flex; }
+/* Numeriques en mono tabulaire */
+.input[type="number"] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
 
-.hint { font-size: var(--text-xs); color: var(--color-text-subtle); }
-.error { font-size: var(--text-xs); color: var(--color-danger); }
+.adornment {
+  color: var(--color-text-subtle);
+  display: inline-flex;
+}
+.field:focus-within .adornment { color: var(--color-accent-deep); }
+
+.hint {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-text-subtle);
+  letter-spacing: 0.04em;
+}
+.error {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  font-weight: var(--weight-medium);
+}

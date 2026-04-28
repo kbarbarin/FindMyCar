@@ -1,34 +1,62 @@
+/* === Source badge === */
 .source {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 3px 10px 3px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-paper);
   border: 1px solid var(--color-border);
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--color-text-muted);
-  font-weight: var(--weight-medium);
+  font-weight: 500;
 }
-.sourceDot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.sourceDot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
 
+/* === Country plate (style immatriculation EU) === */
 .country {
-  display: inline-flex; align-items: stretch;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 3px;
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-ink);
   background: #fff;
   font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: var(--weight-semibold);
+  font-size: 12px;
+  font-weight: 700;
   line-height: 1;
-  height: 22px;
+  height: 24px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
+
 .plateLeft {
-  width: 10px;
-  background: var(--flag-fr); /* valeur par défaut — on peut coloriser par pays si besoin */
+  width: 14px;
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 2px;
 }
+.plateStars {
+  font-size: 8px;
+  line-height: 1;
+  color: var(--flag-eu-gold);
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+  transform: scale(0.9);
+}
+
 .plateCode {
   padding: 0 8px;
-  display: inline-flex; align-items: center;
-  color: var(--color-text);
-  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-ink);
+  letter-spacing: 0.06em;
+  background: #FFFFFF;
 }

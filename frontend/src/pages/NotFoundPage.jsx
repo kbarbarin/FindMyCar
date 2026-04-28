@@ -8,10 +8,10 @@ export default function NotFoundPage() {
     <div className="container">
       <EmptyState
         icon={<Compass size={22} />}
-        title="Page introuvable"
-        description="Cette page n'existe pas ou a été déplacée."
+        title="Hors-piste"
+        description="Cette page n'existe pas ou a ete deplacee. Revenez au cockpit principal pour relancer une recherche."
         actions={
-          <Link to="/"><Button variant="primary">Retour à l'accueil</Button></Link>
+          <Link to="/"><Button variant="accent">Retour au cockpit</Button></Link>
         }
       />
     </div>

@@ -1,94 +1,190 @@
-/* Design tokens — tous les composants s'y réfèrent.
-   Un thème dark se fera en redéfinissant ces variables sur [data-theme="dark"]. */
+/* FindMyCar — Precision Garage tokens.
+   Aesthetic : papier ivoire grain, encre graphite, ambre signal (voyant cockpit).
+   Mode sombre via [data-theme="dark"]. */
+
 :root {
-  /* Couleurs neutres */
-  --color-bg: #F7F8FA;
-  --color-surface: #FFFFFF;
-  --color-surface-2: #F2F4F7;
-  --color-surface-3: #EEF0F3;
-  --color-border: #E4E7EC;
-  --color-border-strong: #D0D5DD;
+  /* === Surfaces ===
+     Le fond ivoire est tiede : ce n'est pas du blanc SaaS. */
+  --color-bg:           #F4F1EA;
+  --color-bg-2:         #EFEBE0;
+  --color-paper:        #FAF7EE;
+  --color-surface:      #FFFFFF;
+  --color-surface-2:    #F0EBDC;
+  --color-surface-3:    #E5DFCF;
+  --color-ink:          #101216;
+  --color-ink-soft:     #1A1D24;
 
-  --color-text: #0B0E14;
-  --color-text-muted: #414651;
-  --color-text-subtle: #667085;
-  --color-text-disabled: #98A2B3;
+  /* === Bordures graphite, pas grises === */
+  --color-border:       #D9D2BE;
+  --color-border-strong:#A6997B;
+  --color-border-ink:   #101216;
 
-  /* Accent */
-  --color-accent: #2D5BFF;
-  --color-accent-hover: #1E45D9;
-  --color-accent-soft: #EAF0FF;
+  /* === Texte === */
+  --color-text:         #101216;
+  --color-text-muted:   #4A4A45;
+  --color-text-subtle:  #786F5C;
+  --color-text-disabled:#B6AC95;
+  --color-text-on-ink:  #F4F1EA;
 
-  /* Statuts */
-  --color-success: #10B981;
-  --color-success-soft: #E6F7F1;
-  --color-warning: #F59E0B;
-  --color-warning-soft: #FEF4E1;
-  --color-danger: #EF4444;
-  --color-danger-soft: #FDECEC;
-  --color-info: #2D5BFF;
+  /* === Accent : ambre signal (voyant tableau de bord) === */
+  --color-accent:       #E8B042;
+  --color-accent-deep:  #C7902A;
+  --color-accent-soft:  #F7E6BC;
+  --color-accent-glow:  rgba(232, 176, 66, 0.35);
 
-  /* Drapeaux pays (badges) */
-  --flag-fr: #0055A4;
-  --flag-de: #FFCC00;
-  --flag-be: #FAE042;
-  --flag-nl: #FF6600;
-  --flag-it: #009246;
-  --flag-es: #C60B1E;
+  /* === Statuts === */
+  --color-success:      #1F7A56;
+  --color-success-soft: #D4E6D9;
+  --color-success-ink:  #0F4A33;
+  --color-warning:      #C97A1F;
+  --color-warning-soft: #F4E2C5;
+  --color-warning-ink:  #6B3F0F;
+  --color-danger:       #C63B2A;
+  --color-danger-soft:  #F1D7D2;
+  --color-danger-ink:   #7A2118;
+  --color-info:         #2E5168;
+  --color-info-soft:    #D8E2EA;
 
-  /* Typographie */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Monaco, 'Courier New', monospace;
+  /* === Drapeaux EU pour plaques pays === */
+  --flag-fr-blue:   #002395;
+  --flag-fr-red:    #ED2939;
+  --flag-de-gold:   #FFCE00;
+  --flag-de-red:    #DD0000;
+  --flag-be-yellow: #FAE042;
+  --flag-be-red:    #ED2939;
+  --flag-nl-orange: #FF6600;
+  --flag-nl-blue:   #21468B;
+  --flag-it-green:  #008C45;
+  --flag-it-red:    #CD212A;
+  --flag-es-red:    #C60B1E;
+  --flag-es-yellow: #FFC400;
+  --flag-eu-blue:   #003399;
+  --flag-eu-gold:   #FFCC00;
 
-  --text-xs: 12px;
-  --text-sm: 13px;
-  --text-base: 14px;
-  --text-md: 16px;
-  --text-lg: 18px;
-  --text-xl: 22px;
-  --text-2xl: 28px;
-  --text-3xl: 36px;
+  /* === Typographie ===
+     Instrument Serif italic = titres editoriaux (display).
+     Geist = UI sobre.
+     JetBrains Mono = chiffres tabulaires (prix, km, annees). */
+  --font-display: 'Instrument Serif', 'Times New Roman', Georgia, serif;
+  --font-sans:    'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, Menlo, Monaco, 'Courier New', monospace;
 
-  --leading-tight: 1.2;
-  --leading-normal: 1.5;
+  --text-2xs:  11px;
+  --text-xs:   12px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-md:   16px;
+  --text-lg:   19px;
+  --text-xl:   24px;
+  --text-2xl:  32px;
+  --text-3xl:  44px;
+  --text-display: 64px;
+  --text-display-xl: 88px;
 
-  --weight-regular: 400;
-  --weight-medium: 500;
+  --leading-tight:  1.05;
+  --leading-snug:   1.25;
+  --leading-normal: 1.55;
+  --leading-loose:  1.7;
+
+  --weight-regular:  400;
+  --weight-medium:   500;
   --weight-semibold: 600;
-  --weight-bold: 700;
+  --weight-bold:     700;
 
-  /* Espacement (base 4) */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
+  --tracking-tight: -0.02em;
+  --tracking-base:  0;
+  --tracking-wide:  0.04em;
+  --tracking-mono:  0.02em;
+
+  /* === Espacement === */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  28px;
+  --space-8:  32px;
   --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
+  --space-12: 56px;
+  --space-16: 80px;
+  --space-20: 112px;
 
-  /* Rayons */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  /* === Rayons : on garde sec, pas de pillow === */
+  --radius-xs:   3px;
+  --radius-sm:   5px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   18px;
   --radius-pill: 999px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
-  --shadow-md: 0 2px 8px rgba(16, 24, 40, 0.06), 0 1px 2px rgba(16, 24, 40, 0.04);
-  --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.08), 0 4px 8px rgba(16, 24, 40, 0.04);
+  /* === Ombres : chaudes, jamais bleues === */
+  --shadow-xs: 0 1px 0 rgba(16, 18, 22, 0.04);
+  --shadow-sm: 0 1px 2px rgba(16, 18, 22, 0.06), 0 0 0 1px rgba(16, 18, 22, 0.02);
+  --shadow-md: 0 8px 20px -8px rgba(16, 18, 22, 0.12), 0 2px 4px rgba(16, 18, 22, 0.04);
+  --shadow-lg: 0 24px 40px -16px rgba(16, 18, 22, 0.18), 0 4px 8px rgba(16, 18, 22, 0.06);
+  --shadow-amber: 0 18px 36px -16px rgba(199, 144, 42, 0.45), 0 0 0 1px rgba(199, 144, 42, 0.25);
 
-  /* Layout */
-  --container-max: 1280px;
-  --header-height: 64px;
-  --sidebar-width: 288px;
+  /* === Layout === */
+  --container-max: 1320px;
+  --container-pad: 32px;
+  --header-height: 72px;
+  --sidebar-width: 296px;
 
-  /* Transitions */
-  --transition-fast: 120ms ease;
-  --transition-base: 180ms ease;
+  /* === Transitions === */
+  --transition-fast: 140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 420ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Focus ring */
-  --focus-ring: 0 0 0 3px rgba(45, 91, 255, 0.3);
+  /* === Focus === */
+  --focus-ring: 0 0 0 3px var(--color-accent-glow), 0 0 0 1px var(--color-accent-deep);
+
+  /* === Texture grain (utilisable en background-image) === */
+  --grain-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0.16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+}
+
+/* === DARK THEME ===
+   Garage de nuit : graphite profond, ambre intact, contrastes ravives. */
+[data-theme="dark"] {
+  --color-bg:           #0E1116;
+  --color-bg-2:         #0B0D11;
+  --color-paper:        #161A21;
+  --color-surface:      #161A21;
+  --color-surface-2:    #1D222B;
+  --color-surface-3:    #262C37;
+  --color-ink:          #EDEAE3;
+  --color-ink-soft:     #C7C2B5;
+
+  --color-border:       #2A303B;
+  --color-border-strong:#3D4452;
+  --color-border-ink:   #EDEAE3;
+
+  --color-text:         #EDEAE3;
+  --color-text-muted:   #B5AE9D;
+  --color-text-subtle:  #7E7866;
+  --color-text-disabled:#4D4A42;
+  --color-text-on-ink:  #0E1116;
+
+  --color-accent:       #F0BC52;
+  --color-accent-deep:  #E8B042;
+  --color-accent-soft:  #3A2E14;
+  --color-accent-glow:  rgba(240, 188, 82, 0.30);
+
+  --color-success:      #4DAF85;
+  --color-success-soft: #1A3328;
+  --color-success-ink:  #A6DCC1;
+  --color-warning:      #E5A04F;
+  --color-warning-soft: #3A2A14;
+  --color-warning-ink:  #F0CC8E;
+  --color-danger:       #E5685A;
+  --color-danger-soft:  #3A1A14;
+  --color-danger-ink:   #F0AAA0;
+  --color-info:         #7BA0BC;
+  --color-info-soft:    #182530;
+
+  --shadow-xs: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-md: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.8);
+  --shadow-amber: 0 18px 36px -16px rgba(240, 188, 82, 0.4), 0 0 0 1px rgba(240, 188, 82, 0.4);
 }

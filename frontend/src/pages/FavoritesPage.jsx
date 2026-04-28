@@ -13,9 +13,19 @@ export default function FavoritesPage() {
   return (
     <div className="container">
       <header className={styles.header}>
-        <h1>Favoris</h1>
+        <div className={styles.headTitle}>
+          <span className={styles.kicker}>Garage</span>
+          <h1 className={styles.title}>
+            <span className={styles.titleSerif}>Vos voitures</span>
+            <span className={styles.titleSans}>marquees.</span>
+          </h1>
+          <p className={styles.subtitle}>
+            <span className="tabular">{favorites.length}</span> {favorites.length > 1 ? 'annonces gardees a portee' : 'annonce gardee a portee'} de cle a molette.
+            Stockage local, vide a la fermeture du navigateur si vous le decidez.
+          </p>
+        </div>
         {favorites.length > 0 && (
-          <Button variant="ghost" onClick={clear}>Tout effacer</Button>
+          <Button variant="secondary" onClick={clear}>Vider le garage</Button>
         )}
       </header>
 
@@ -23,8 +33,8 @@ export default function FavoritesPage() {
         <EmptyState
           icon={<Heart size={22} />}
           title="Aucun favori pour l'instant"
-          description="Cliquez sur le cœur d'une annonce pour la garder à portée de main."
-          actions={<Link to="/search"><Button variant="primary">Découvrir des annonces</Button></Link>}
+          description="Cliquez sur le coeur d'une annonce pour la garder a portee de main, comparer plus tard, ou la transmettre."
+          actions={<Link to="/search"><Button variant="accent">Decouvrir des annonces</Button></Link>}
         />
       ) : (
         <ul className={styles.list}>
