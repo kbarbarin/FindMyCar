@@ -18,6 +18,11 @@
   border: none; outline: none;
   font-size: var(--text-base);
 }
+/* Le focus ring est géré par .field via :focus-within. On supprime celui que
+   global.css ajoute par défaut sur tout élément focusable, sinon on a un
+   double cadre (ring sur input ET sur field). */
+.input:focus,
+.input:focus-visible { outline: none; box-shadow: none; }
 .input::placeholder { color: var(--color-text-subtle); }
 
 .adornment { color: var(--color-text-subtle); display: inline-flex; }

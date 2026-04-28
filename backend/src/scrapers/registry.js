@@ -1,10 +1,13 @@
 // Registry des scrapers, construit depuis le catalogue.
 //
-// Le catalogue décrit TOUTES les sources qu'on expose dans l'UI (38+).
-// L'implémentation est résolue via catalogEntry.implementation :
-//   - Si une classe dédiée existe, on l'instancie.
-//   - Sinon, on met un PendingSourceScraper (qui refuse de scraper mais
-//     existe dans l'UI pour que l'utilisateur voie le catalogue complet).
+// Auto-désactivation au boot :
+//   - 'needs_proxy' : nécessitent un proxy résidentiel
+//   - 'pending'     : implémentation existe mais URL/sélecteurs cassés ou jamais
+//                     vérifiés. Désactivés pour ne pas polluer chaque recherche.
+//
+// Override runtime : ENABLE_<SOURCE_ID>=true / false force l'état.
+// Les sources désactivées peuvent quand même être appelées via l'API si l'ID
+// est passé explicitement dans `criteria.sources` (manual retry depuis le front).
 
 import { SOURCES_CATALOG } from './sources.catalog.js';
 import { LeboncoinScraper } from './leboncoin.scraper.js';
@@ -30,8 +33,6 @@ const IMPL_REGISTRY = {
   generic: (entry) => new GenericScraper(entry),
 };
 
-// Construction : une instance par entrée de catalogue.
-// Les scrapers 'needs_proxy' sont auto-désactivés (enabled=false) sauf flag.
 const SCRAPERS = SOURCES_CATALOG.map((entry) => {
   const factory = entry.implementation ? IMPL_REGISTRY[entry.implementation] : null;
   let scraper;
@@ -42,24 +43,33 @@ const SCRAPERS = SOURCES_CATALOG.map((entry) => {
   } else {
     scraper = new PendingSourceScraper(entry);
   }
-  // Désactive par défaut les sources clairement bloquées sans proxy.
-  if (entry.status === 'needs_proxy') scraper.enabled = false;
+  // Activation par défaut : seulement 'live' et 'experimental'.
+  // Les autres statuts ('needs_proxy', 'pending') sont désactivés.
+  scraper.enabled = entry.status === 'live' || entry.status === 'experimental';
   return scraper;
 });
 
-// Appliquer les flags runtime (ENABLE_XXX pour les sources désactivées par défaut)
+// Override par variable d'env
 for (const s of SCRAPERS) {
-  const envFlag = `ENABLE_${s.id.toUpperCase()}`;
-  if (process.env[envFlag] === 'true') s.enabled = true;
-  if (process.env[envFlag] === 'false') s.enabled = false;
+  const flag = process.env[`ENABLE_${s.id.toUpperCase()}`];
+  if (flag === 'true')  s.enabled = true;
+  if (flag === 'false') s.enabled = false;
 }
 
+/**
+ * Retourne les scrapers à utiliser pour une recherche.
+ *
+ * @param {Object} opts
+ * @param {string[]|null} opts.ids        - Si fourni, retourne UNIQUEMENT ces ids
+ *                                          (et bypass `onlyEnabled` → permet le manual retry).
+ * @param {boolean} opts.onlyEnabled      - Quand `ids` n'est pas fourni, ne rend que les enabled.
+ */
 export function getScrapers({ ids = null, onlyEnabled = true } = {}) {
-  return SCRAPERS.filter((s) => {
-    if (onlyEnabled && !s.enabled) return false;
-    if (ids && ids.length && !ids.includes(s.id)) return false;
-    return true;
-  });
+  if (ids && ids.length) {
+    // Sélection explicite : on respecte la liste sans filtrer sur enabled.
+    return SCRAPERS.filter((s) => ids.includes(s.id));
+  }
+  return SCRAPERS.filter((s) => !onlyEnabled || s.enabled);
 }
 
 export function getScraperById(id) {

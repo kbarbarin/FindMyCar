@@ -1,15 +1,19 @@
-// Service Firestore : init Admin SDK + upsert listings + queries pour stats.
+// Service Firestore : init Admin SDK + listings + searchCache + searchHistory + stats.
 //
-// Mode de fonctionnement :
-//   - Sur Cloud Run/Cloud Functions : l'auth est automatique via ADC.
-//   - En local : FIREBASE_SERVICE_ACCOUNT peut pointer vers un fichier JSON, ou
-//     on essaye les credentials par défaut (gcloud auth application-default login).
-//   - Si aucun project ID trouvé → les écritures sont NOOP (le backend tourne
-//     sans plantage mais avec un warning).
+// 3 modes d'authentification automatiques :
+//   1. FIREBASE_SERVICE_ACCOUNT=/path/to/sa.json → service account explicite
+//   2. GOOGLE_APPLICATION_CREDENTIALS=/path → ADC depuis env
+//   3. ~/.config/gcloud/application_default_credentials.json → ADC user (gcloud auth ADC login)
+//   4. Cloud Run / Functions → metadata server (auto)
+//
+// Si rien n'est trouvé, le service tourne en mode no-op (warning au boot, pas
+// de crash, app fonctionnelle sans persistance).
 
 import { initializeApp, cert, getApps, applicationDefault } from 'firebase-admin/app';
 import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { logger } from '../utils/logger.js';
 
 const log = logger.child({ service: 'firestore' });
@@ -18,21 +22,36 @@ let db = null;
 let enabled = false;
 
 function init() {
-  if (getApps().length > 0) return;
+  if (getApps().length > 0) {
+    db = getFirestore();
+    enabled = true;
+    return;
+  }
 
   try {
     let credential;
+    let mode;
+
     const saPath = process.env.FIREBASE_SERVICE_ACCOUNT;
-    if (saPath) {
-      const sa = JSON.parse(readFileSync(saPath, 'utf8'));
-      credential = cert(sa);
-      log.info('firestore.init', { mode: 'service_account_file' });
-    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.K_SERVICE) {
-      // Cloud Run / Functions ou gcloud ADC
+    if (saPath && existsSync(saPath)) {
+      credential = cert(JSON.parse(readFileSync(saPath, 'utf8')));
+      mode = 'service_account_file';
+    } else if (process.env.K_SERVICE || process.env.GOOGLE_APPLICATION_CREDENTIALS) {
       credential = applicationDefault();
-      log.info('firestore.init', { mode: 'application_default' });
+      mode = 'application_default_env';
     } else {
-      log.warn('firestore.disabled', { reason: 'no_credentials' });
+      const adcPath = join(homedir(), '.config', 'gcloud', 'application_default_credentials.json');
+      if (existsSync(adcPath)) {
+        credential = applicationDefault();
+        mode = 'application_default_user';
+      }
+    }
+
+    if (!credential) {
+      log.warn('firestore.disabled', {
+        reason: 'no_credentials',
+        hint: 'Lance `gcloud auth application-default login` ou pose FIREBASE_SERVICE_ACCOUNT.',
+      });
       return;
     }
 
@@ -42,7 +61,7 @@ function init() {
     });
     db = getFirestore();
     enabled = true;
-    log.info('firestore.ready');
+    log.info('firestore.ready', { mode, project: process.env.FIREBASE_PROJECT_ID });
   } catch (err) {
     log.error('firestore.init_failed', { msg: err.message });
   }
@@ -50,38 +69,44 @@ function init() {
 
 init();
 
-// --- Upsert listings ---------------------------------------------------
-// On veut traquer les évolutions de prix / disparitions. À chaque fois
-// qu'une annonce est (re)vue, on met à jour lastSeenAt et on incrémente
-// seenCount. Si le prix a changé, on push l'ancien dans priceHistory.
+// --- Helpers ---
+function docIdFromListing(id) { return String(id).replace(/[\/#?]/g, '_'); }
+function stripUndefined(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(stripUndefined).filter((v) => v !== undefined);
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === undefined) continue;
+    out[k] = stripUndefined(v);
+  }
+  return out;
+}
+
 export const firestoreService = {
   isEnabled: () => enabled,
 
+  // --- Listings -------------------------------------------------------
   async upsertListings(listings) {
     if (!enabled || !listings?.length) return { written: 0 };
     const col = db.collection('listings');
     const now = Timestamp.now();
-
-    // Firestore = 500 opérations max par batch. On chunke.
     const CHUNK = 400;
     let written = 0;
+
     for (let i = 0; i < listings.length; i += CHUNK) {
       const batch = db.batch();
       for (const l of listings.slice(i, i + CHUNK)) {
         if (!l?.id) continue;
         const ref = col.doc(docIdFromListing(l.id));
-
-        // Champ "merge" qui ne cassse pas priceHistory si déjà existant.
         batch.set(ref, {
           ...stripUndefined(l),
           lastSeenAt: now,
-          firstSeenAt: FieldValue.arrayUnion ? FieldValue.serverTimestamp() : now, // idempotent-ish
+          firstSeenAt: FieldValue.serverTimestamp(),
           seenCount: FieldValue.increment(1),
-          priceHistory: l.price?.amount != null
-            ? FieldValue.arrayUnion({ amount: l.price.amount, currency: l.price.currency, at: now })
-            : FieldValue.delete(),
+          ...(l.price?.amount != null && {
+            priceHistory: FieldValue.arrayUnion({ amount: l.price.amount, currency: l.price.currency, at: now }),
+          }),
         }, { merge: true });
-
         written++;
       }
       await batch.commit().catch((err) => log.warn('firestore.batch_failed', { msg: err.message }));
@@ -89,7 +114,62 @@ export const firestoreService = {
     return { written };
   },
 
-  // Stats : médiane prix par make+model (toutes années)
+  async getListingsByIds(ids) {
+    if (!enabled || !ids?.length) return [];
+    const col = db.collection('listings');
+    const CHUNK = 30; // limite des in-queries Firestore (était 10, élargi à 30)
+    const all = [];
+    for (let i = 0; i < ids.length; i += CHUNK) {
+      const batch = ids.slice(i, i + CHUNK).map(docIdFromListing);
+      const snap = await col.where('__name__', 'in', batch.map((id) => col.doc(id))).get()
+        .catch(async () => {
+          // Fallback : récupérations individuelles
+          const docs = await Promise.all(batch.map((id) => col.doc(id).get()));
+          return { docs };
+        });
+      for (const d of snap.docs) {
+        if (d.exists) all.push(d.data());
+      }
+    }
+    return all;
+  },
+
+  // --- Cache de recherche --------------------------------------------
+  // Stocke pour chaque criteriaHash : la liste d'IDs récupérée + timestamp.
+  // Quand on relance la même recherche dans le TTL, on lit cette entrée
+  // au lieu de re-scraper.
+  async getCachedSearch(criteriaHash, { maxAgeMinutes = 360 } = {}) {
+    if (!enabled) return null;
+    const ref = db.collection('searchCache').doc(criteriaHash);
+    const snap = await ref.get();
+    if (!snap.exists) return null;
+    const data = snap.data();
+    const ageMin = (Date.now() - data.cachedAt.toMillis()) / 60000;
+    if (ageMin > maxAgeMinutes) return null;
+    return { ...data, ageMinutes: Math.round(ageMin) };
+  },
+
+  async cacheSearch(criteriaHash, criteria, listingIds, { source = 'live' } = {}) {
+    if (!enabled) return;
+    const ref = db.collection('searchCache').doc(criteriaHash);
+    await ref.set({
+      criteria: stripUndefined(criteria),
+      listingIds: listingIds.slice(0, 1000),
+      cachedAt: Timestamp.now(),
+      source,
+    }).catch((err) => log.warn('firestore.cache_set_failed', { msg: err.message }));
+  },
+
+  // --- Historique des recherches -------------------------------------
+  async recordSearch(entry) {
+    if (!enabled) return;
+    await db.collection('searches').add({
+      ...stripUndefined(entry),
+      timestamp: Timestamp.now(),
+    }).catch((err) => log.warn('firestore.record_search_failed', { msg: err.message }));
+  },
+
+  // --- Stats ---------------------------------------------------------
   async medianPrices({ make, model, country, daysWindow = 30, limit = 2000 } = {}) {
     if (!enabled) return null;
     const cutoff = Timestamp.fromMillis(Date.now() - daysWindow * 86400000);
@@ -111,7 +191,6 @@ export const firestoreService = {
     };
   },
 
-  // Top modèles (les plus scrapés)
   async topModels({ country, limit = 20 } = {}) {
     if (!enabled) return [];
     let q = db.collection('listings').select('make', 'model', 'country').limit(5000);
@@ -130,7 +209,6 @@ export const firestoreService = {
       .slice(0, limit);
   },
 
-  // Couverture par source
   async coverageBySource() {
     if (!enabled) return [];
     const snap = await db.collection('listings').select('source').limit(10000).get();
@@ -143,7 +221,6 @@ export const firestoreService = {
     return [...counts.entries()].map(([sourceId, count]) => ({ sourceId, count })).sort((a, b) => b.count - a.count);
   },
 
-  // Évolution du nombre d'annonces jour par jour (7 ou 30 derniers jours)
   async volumeByDay({ days = 30 } = {}) {
     if (!enabled) return [];
     const cutoff = Timestamp.fromMillis(Date.now() - days * 86400000);
@@ -165,26 +242,14 @@ export const firestoreService = {
 
   async totalCount() {
     if (!enabled) return null;
-    // Firestore count() agrégation (moderne)
     const snap = await db.collection('listings').count().get();
     return snap.data().count;
   },
+
+  // Stats sur les recherches utilisateur (audit / analytics)
+  async recentSearches({ limit = 50 } = {}) {
+    if (!enabled) return [];
+    const snap = await db.collection('searches').orderBy('timestamp', 'desc').limit(limit).get();
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  },
 };
-
-function docIdFromListing(id) {
-  // Les / ne sont pas autorisés comme doc ID. Notre format est "source:ref"
-  // qui contient ":" — pas un souci pour Firestore mais sanitize par précaution.
-  return String(id).replace(/[\/#?]/g, '_');
-}
-
-function stripUndefined(obj) {
-  // Firestore refuse les undefined. On les strip récursivement.
-  if (obj === null || typeof obj !== 'object') return obj;
-  if (Array.isArray(obj)) return obj.map(stripUndefined).filter((v) => v !== undefined);
-  const out = {};
-  for (const [k, v] of Object.entries(obj)) {
-    if (v === undefined) continue;
-    out[k] = stripUndefined(v);
-  }
-  return out;
-}

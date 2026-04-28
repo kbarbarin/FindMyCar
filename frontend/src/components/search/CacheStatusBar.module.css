@@ -1,0 +1,22 @@
+.bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-3);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  flex-wrap: wrap;
+}
+.left { display: inline-flex; align-items: center; gap: 8px; }
+.bar strong { font-weight: var(--weight-semibold); }
+
+.cache {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.live {
+  background: var(--color-success-soft);
+  color: #065f46;
+}
+
+.spinning { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

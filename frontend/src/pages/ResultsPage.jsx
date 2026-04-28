@@ -12,6 +12,8 @@ import ErrorState from '../components/ui/ErrorState.jsx';
 import Card from '../components/ui/Card.jsx';
 import Button from '../components/ui/Button.jsx';
 import DemoBanner from '../components/ui/DemoBanner.jsx';
+import SourceStatusPanel from '../components/search/SourceStatusPanel.jsx';
+import CacheStatusBar from '../components/search/CacheStatusBar.jsx';
 import { useCriteriaQuery } from '../hooks/useQueryParams.js';
 import { useSearch } from '../hooks/useSearch.js';
 import { SOURCE_META_BY_ID } from '../constants/sources.js';
@@ -19,7 +21,11 @@ import styles from './ResultsPage.module.css';
 
 export default function ResultsPage() {
   const [criteria, setCriteria] = useCriteriaQuery();
-  const { status, results, suggestions, error, partialSources, sourceStats, fromBackend } = useSearch(criteria);
+  const {
+    status, results, suggestions, error,
+    partialSources, sourceStats, fromBackend,
+    cacheStatus, durationMs, forceRescrape,
+  } = useSearch(criteria);
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -55,6 +61,23 @@ export default function ResultsPage() {
       <div className={styles.demoWrap}>
         <DemoBanner fromBackend={fromBackend} sourceStats={sourceStats} partialSources={partialSources} />
       </div>
+
+      {cacheStatus && (
+        <div className={styles.demoWrap}>
+          <CacheStatusBar
+            cacheStatus={cacheStatus}
+            durationMs={durationMs}
+            status={status}
+            onForceRescrape={forceRescrape}
+          />
+        </div>
+      )}
+
+      {sourceStats && (
+        <div className={styles.demoWrap}>
+          <SourceStatusPanel />
+        </div>
+      )}
 
       <div className={styles.mobileBar}>
         <Button variant="secondary" size="sm" leftIcon={<SlidersHorizontal size={16} />} onClick={() => setDrawerOpen(true)}>

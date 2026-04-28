@@ -12,25 +12,29 @@ export async function search(req, res) {
     return res.json(cached);
   }
 
-  const { total, partialSources, sourceStats, results } = await aggregatedSearch(criteria);
+  const agg = await aggregatedSearch(criteria);
 
-  // Pagination
   const page = Math.max(1, parseInt(criteria.page ?? 1, 10) || 1);
-  const pageSize = Math.min(100, Math.max(1, parseInt(criteria.pageSize ?? 24, 10) || 24));
+  const pageSize = Math.min(500, Math.max(1, parseInt(criteria.pageSize ?? 24, 10) || 24));
   const offset = (page - 1) * pageSize;
-  const paged = results.slice(offset, offset + pageSize);
-
-  const estimation = computeEstimate(results);
+  const paged = agg.results.slice(offset, offset + pageSize);
 
   const body = {
     criteria,
-    total,
+    total: agg.total,
     page, pageSize,
-    partialSources,
-    sourceStats,
-    estimation,
+    rawCount: agg.rawCount,
+    liveCount: agg.liveCount,
+    sourcesAttempted: agg.sourcesAttempted,
+    sourcesInCatalog: agg.sourcesInCatalog,
+    durationMs: agg.durationMs,
+    cacheStatus: agg.cacheStatus,
+    partialSources: agg.partialSources,
+    sourceStats: agg.sourceStats,
+    estimation: computeEstimate(agg.results),
     results: paged,
   };
+
   cacheService.set(key, body);
   res.set('X-Cache', 'MISS');
   res.json(body);

@@ -40,7 +40,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'paruvendu', label: 'ParuVendu', country: 'FR',
     baseUrl: 'https://www.paruvendu.fr',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.paruvendu.fr/a/voiture-occasion${q ? `/?p=${encodeURIComponent(q)}` : ''}`;
@@ -96,7 +96,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'pkwde', label: 'PKW.de', country: 'DE',
     baseUrl: 'https://www.pkw.de',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.pkw.de/gebrauchtwagen${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -130,7 +130,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'wallapop', label: 'Wallapop', country: 'ES',
     baseUrl: 'https://es.wallapop.com',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://es.wallapop.com/app/search?category_ids=100${q ? `&keywords=${encodeURIComponent(q)}` : ''}`;
@@ -140,7 +140,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'coches_com', label: 'Coches.com', country: 'ES',
     baseUrl: 'https://www.coches.com',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join('-').toLowerCase();
       return `https://www.coches.com/coches-segunda-mano${q ? `/${encodeURIComponent(q)}` : ''}.html`;
@@ -152,7 +152,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'gocar', label: 'Gocar', country: 'BE',
     baseUrl: 'https://www.gocar.be',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.gocar.be/fr/annonces${q ? `?search=${encodeURIComponent(q)}` : ''}`;
@@ -184,7 +184,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'automobile_it', label: 'Automobile.it', country: 'IT',
     baseUrl: 'https://www.automobile.it',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const m = make ? `/${encodeURIComponent(make.toLowerCase())}` : '';
       const mo = model ? `/${encodeURIComponent(model.toLowerCase())}` : '';
@@ -195,7 +195,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'bakeca', label: 'Bakeca', country: 'IT',
     baseUrl: 'https://auto.bakeca.it',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://auto.bakeca.it/annunci${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -205,7 +205,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'kijiji', label: 'Kijiji', country: 'IT',
     baseUrl: 'https://www.kijiji.it',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.kijiji.it/auto/${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -217,7 +217,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'anibis', label: 'Anibis', country: 'CH',
     baseUrl: 'https://www.anibis.ch',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.anibis.ch/fr/c/voitures${q ? `?query=${encodeURIComponent(q)}` : ''}`;
@@ -227,7 +227,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'tutti', label: 'Tutti', country: 'CH',
     baseUrl: 'https://www.tutti.ch',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.tutti.ch/fr/q/vehicules-voitures${q ? `?query=${encodeURIComponent(q)}` : ''}`;
@@ -239,7 +239,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'luxauto', label: 'Luxauto', country: 'LU',
     baseUrl: 'https://www.luxauto.lu',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.luxauto.lu/voitures${q ? `?search=${encodeURIComponent(q)}` : ''}`;
@@ -274,7 +274,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'custojusto', label: 'CustoJusto', country: 'PT',
     baseUrl: 'https://www.custojusto.pt',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.custojusto.pt/autos${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -295,7 +295,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'autowereld', label: 'Autowereld', country: 'NL',
     baseUrl: 'https://www.autowereld.nl',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.autowereld.nl/zoeken${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -305,7 +305,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'speurders', label: 'Speurders', country: 'NL',
     baseUrl: 'https://www.speurders.nl',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.speurders.nl/auto${q ? `/?q=${encodeURIComponent(q)}` : ''}`;
@@ -340,7 +340,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'gratka', label: 'Gratka', country: 'PL',
     baseUrl: 'https://gratka.pl',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://gratka.pl/motoryzacja/osobowe${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -363,7 +363,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'bytbil', label: 'Bytbil', country: 'SE',
     baseUrl: 'https://bytbil.com',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://bytbil.com/bilar${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -388,7 +388,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'tori', label: 'Tori.fi', country: 'FI',
     baseUrl: 'https://www.tori.fi',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.tori.fi/autot${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -400,7 +400,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'bilbasen', label: 'Bilbasen', country: 'DK',
     baseUrl: 'https://www.bilbasen.dk',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.bilbasen.dk/brugt/bil${q ? `?free=${encodeURIComponent(q)}` : ''}`;
@@ -436,7 +436,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'cars_bg', label: 'Cars.bg', country: 'BG',
     baseUrl: 'https://www.cars.bg',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.cars.bg/carslist.php${q ? `?subm=1&add_search=1&q=${encodeURIComponent(q)}` : ''}`;
@@ -448,7 +448,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'car_gr', label: 'Car.gr', country: 'GR',
     baseUrl: 'https://www.car.gr',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.car.gr/classifieds/cars${q ? `/?q=${encodeURIComponent(q)}` : ''}`;
@@ -458,7 +458,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'vendora', label: 'Vendora', country: 'GR',
     baseUrl: 'https://www.vendora.gr',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.vendora.gr/cars${q ? `/?q=${encodeURIComponent(q)}` : ''}`;
@@ -470,7 +470,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'autoplius', label: 'Autoplius', country: 'LT',
     baseUrl: 'https://autoplius.lt',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://autoplius.lt/skelbimai/naudoti-automobiliai${q ? `?make_keyword=${encodeURIComponent(q)}` : ''}`;
@@ -480,7 +480,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'autogidas', label: 'Autogidas', country: 'LT',
     baseUrl: 'https://autogidas.lt',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://autogidas.lt/paieska${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -492,7 +492,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'ss_lv', label: 'SS.lv', country: 'LV',
     baseUrl: 'https://www.ss.lv',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.ss.lv/lv/transport/cars/${q ? `?q=${encodeURIComponent(q)}` : ''}`;
@@ -515,7 +515,7 @@ export const SOURCES_CATALOG = [
   {
     id: 'hasznaltauto', label: 'Hasznaltauto', country: 'HU',
     baseUrl: 'https://www.hasznaltauto.hu',
-    implementation: 'generic', status: 'experimental', preferredEngine: 'fetch',
+    implementation: 'generic', status: 'pending', preferredEngine: 'fetch',
     searchUrl: ({ make, model }) => {
       const q = [make, model].filter(Boolean).join(' ');
       return `https://www.hasznaltauto.hu/auto${q ? `?q=${encodeURIComponent(q)}` : ''}`;
