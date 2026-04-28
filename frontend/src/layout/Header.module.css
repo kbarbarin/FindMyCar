@@ -21,12 +21,35 @@
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 .navLink:hover { background: var(--color-surface-2); color: var(--color-text); }
 .navLinkActive { background: var(--color-accent-soft); color: var(--color-accent); }
 
+.authZone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: var(--space-3);
+}
+
+.navLinkAccent { color: var(--color-accent); }
+.navLinkAccent:hover { background: var(--color-accent-soft); color: var(--color-accent); }
+
+.userLabel {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 520px) {
   .logoText { display: none; }
   .navLink { padding: 8px 10px; font-size: 12px; }
+  .authZone { margin-left: var(--space-1); }
+  .userLabel { display: none; }
 }
