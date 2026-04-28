@@ -1,8 +1,11 @@
 import { Link, NavLink } from 'react-router-dom';
-import { BarChart3, Heart, Search } from 'lucide-react';
+import { BarChart3, Heart, LogIn, LogOut, Search, UserCircle2 } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth.js';
 import styles from './Header.module.css';
 
 export default function Header() {
+  const { user, isAuthenticated, signOut, loading } = useAuth();
+
   return (
     <header className={styles.header}>
       <div className={styles.scanline} aria-hidden />
@@ -59,6 +62,33 @@ export default function Header() {
             <Heart size={15} /> <span>Garage</span>
           </NavLink>
         </nav>
+
+        <div className={styles.authZone}>
+          {loading ? null : isAuthenticated ? (
+            <>
+              <NavLink
+                to="/account"
+                className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}
+                title={user?.email || ''}
+              >
+                <UserCircle2 size={16} />
+                <span className={styles.userLabel}>{user?.displayName || user?.email}</span>
+              </NavLink>
+              <button type="button" className={styles.navLink} onClick={() => signOut()}>
+                <LogOut size={16} /> Se déconnecter
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
+                <LogIn size={16} /> Connexion
+              </NavLink>
+              <NavLink to="/register" className={({ isActive }) => [styles.navLink, styles.navLinkAccent, isActive ? styles.navLinkActive : ''].join(' ')}>
+                Inscription
+              </NavLink>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

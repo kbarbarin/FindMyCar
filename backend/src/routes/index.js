@@ -6,6 +6,8 @@ import { listingsRouter } from './listings.routes.js';
 import { estimateRouter } from './estimate.routes.js';
 import { statsRouter } from './stats.routes.js';
 import { internalRouter } from './internal.routes.js';
+import { meRouter } from './me.routes.js';
+import { favoritesRouter } from './favorites.routes.js';
 
 export const routes = Router();
 
@@ -16,3 +18,5 @@ routes.use('/listings', listingsRouter);
 routes.use('/estimate', estimateRouter);
 routes.use('/stats', statsRouter);
 routes.use('/internal', internalRouter);
+routes.use('/me', meRouter);
+routes.use('/favorites', favoritesRouter);

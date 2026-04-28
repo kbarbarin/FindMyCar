@@ -3,6 +3,9 @@ rules_version = '2';
 // Les annonces sont écrites uniquement par le backend (via Admin SDK qui
 // bypass les rules). Les clients non auth peuvent LIRE mais pas écrire.
 // Les stats étant calculées depuis /listings, cette règle suffit.
+//
+// Données utilisateur (favoris, préférences…) : isolées sous users/{uid}/...
+// et accessibles UNIQUEMENT par leur propriétaire authentifié.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -10,6 +13,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

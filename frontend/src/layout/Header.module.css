@@ -111,6 +111,10 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
   transition: background var(--transition-fast), color var(--transition-fast);
   position: relative;
 }
@@ -123,12 +127,31 @@
 }
 .navLinkActive:hover { color: var(--color-text-on-ink); }
 
+.authZone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: var(--space-3);
+}
+
+.navLinkAccent { color: var(--color-accent); }
+.navLinkAccent:hover { background: var(--color-accent-soft); color: var(--color-accent); }
+
+.userLabel {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 720px) {
   .logoTag { display: none; }
   .navLink span { display: none; }
   .navLink { padding: 8px 12px; }
+  .userLabel { display: none; }
 }
 @media (max-width: 480px) {
   .logoText { font-size: 18px; }
   .logoMy { font-size: 20px; }
+  .authZone { margin-left: var(--space-1); }
 }

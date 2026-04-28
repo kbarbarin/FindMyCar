@@ -1,7 +1,14 @@
 // Client HTTP vers le backend. Fallback V1 local si le backend est down
 // (l'utilisateur voit toujours quelque chose pendant un outage).
+//
+// Auth : si un utilisateur Firebase est connecté, on attache un header
+// `Authorization: Bearer <ID token>` à chaque requête. Le SDK gère le refresh
+// du token automatiquement (TTL 1h, rafraîchi à la volée par getIdToken()).
+// Pas d'utilisateur -> pas de header, l'appel reste public (les routes
+// publiques fonctionnent comme avant).
 
 import { APP_CONFIG } from '../../config/app.config.js';
+import { getIdToken } from '../auth/authService.js';
 
 const API_URL = import.meta.env.VITE_API_URL || APP_CONFIG.apiUrl || '';
 
@@ -14,9 +21,20 @@ async function request(path, { query, method = 'GET', body } = {}) {
       url.searchParams.set(k, Array.isArray(v) ? v.join(',') : String(v));
     }
   }
+
+  const headers = {};
+  if (body) headers['Content-Type'] = 'application/json';
+
+  // Best-effort : on récupère un ID token si dispo. Pas de blocage si l'auth
+  // n'est pas configurée ou que l'utilisateur n'est pas connecté.
+  try {
+    const token = await getIdToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  } catch { /* ignore */ }
+
   const res = await fetch(url.toString(), {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: Object.keys(headers).length ? headers : undefined,
     body: body ? JSON.stringify(body) : undefined,
   });
   if (!res.ok) {
@@ -40,6 +58,12 @@ export const apiClient = {
     topModels: (q) => request('/api/stats/top-models', { query: q }),
     coverage:  () => request('/api/stats/coverage'),
     volume:    (days) => request('/api/stats/volume', { query: { days } }),
+  },
+  me: () => request('/api/me'),
+  favorites: {
+    list:   () => request('/api/favorites'),
+    add:    (listing) => request('/api/favorites', { method: 'POST', body: listing }),
+    remove: (listingId) => request(`/api/favorites/${encodeURIComponent(listingId)}`, { method: 'DELETE' }),
   },
   isConfigured: () => Boolean(API_URL),
 };
