@@ -1,0 +1,412 @@
+/* === Header === */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header h1 {
+  font-size: var(--text-3xl);
+  letter-spacing: -0.03em;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-accent-deep);
+  font-weight: 500;
+}
+
+/* === Control card (form) === */
+.controlCard { margin-bottom: var(--space-5); }
+
+.form { display: flex; flex-direction: column; gap: var(--space-3); }
+
+.formRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.queryField, .depthField, .actions { min-width: 0; }
+
+.formNote {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--color-text-subtle);
+  padding: 10px 14px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-accent);
+  line-height: 1.5;
+}
+
+/* === Session summary (top compteurs) === */
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.sumCard {
+  position: relative;
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.sumCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--color-border-strong);
+}
+
+.sumCardGlow::before { background: linear-gradient(90deg, var(--color-accent), var(--color-accent-deep)); }
+.sumCardGlow {
+  background: linear-gradient(180deg, var(--color-paper), color-mix(in srgb, var(--color-accent-soft) 60%, var(--color-paper)));
+}
+
+.sumKicker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  font-weight: 500;
+}
+
+.sumValue {
+  font-family: var(--font-mono);
+  font-size: 30px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.04em;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.sumCardGlow .sumValue {
+  color: var(--color-accent-deep);
+}
+
+.sumSub {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-xs);
+  color: var(--color-text-subtle);
+}
+
+/* === Per-source grid === */
+.sourcesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.sourceCard {
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.cardRunning {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 30%, transparent), var(--shadow-sm);
+}
+.cardRunning::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+  background-size: 200% 100%;
+  animation: scan 1.6s linear infinite;
+}
+@keyframes scan {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.cardDone {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-success-soft) 30%, var(--color-paper)), var(--color-paper));
+}
+.cardWarning {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-warning-soft) 35%, var(--color-paper)), var(--color-paper));
+}
+
+.sourceTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sourceIdent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sourceDot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sourceLabel {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sourceCountry {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-subtle);
+  background: var(--color-surface-2);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.08em;
+}
+
+.sourceStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+.statusPending { color: var(--color-text-subtle); background: var(--color-surface-2); }
+.statusRunning { color: var(--color-accent-deep); background: var(--color-accent-soft); }
+.statusDone    { color: var(--color-success-ink); background: var(--color-success-soft); }
+.statusWarning { color: var(--color-warning-ink); background: var(--color-warning-soft); }
+
+.sourceMain {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sourceCount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sourceCountValue {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.04em;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.sourceCountLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-text-subtle);
+}
+
+.sourceProgress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text-subtle);
+}
+
+.progressTrack {
+  position: relative;
+  height: 6px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: var(--color-accent);
+}
+
+.progressShimmer {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  animation: shimmer 1.4s linear infinite;
+  pointer-events: none;
+}
+@keyframes shimmer {
+  from { left: -30%; }
+  to { left: 100%; }
+}
+
+.sourceError {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-danger-ink);
+  background: var(--color-danger-soft);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-danger);
+  letter-spacing: 0.04em;
+}
+
+.sourceFinishReason {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-warning-ink);
+}
+
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* === Done card === */
+.doneCard {
+  background: linear-gradient(180deg, var(--color-paper), color-mix(in srgb, var(--color-success-soft) 50%, var(--color-paper)));
+  border-color: color-mix(in srgb, var(--color-success) 40%, transparent);
+}
+
+.doneRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.doneKicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-success-ink);
+  font-weight: 500;
+}
+
+.doneTitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-2xl);
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  margin-top: 4px;
+}
+
+.doneSub {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+.doneCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-ink);
+  color: var(--color-accent);
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  border: 1px solid var(--color-ink);
+  transition: all var(--transition-fast);
+}
+.doneCta:hover {
+  background: var(--color-accent-deep);
+  color: #FFF8E5;
+  box-shadow: var(--shadow-amber);
+}
+
+/* === Error card === */
+.errorCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger);
+  color: var(--color-danger-ink);
+}
+
+/* === Responsive === */
+@media (max-width: 1024px) {
+  .formRow { grid-template-columns: 1fr 1fr; }
+  .actions { grid-column: 1 / -1; }
+  .summary { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .header h1 { font-size: var(--text-2xl); }
+  .formRow { grid-template-columns: 1fr; }
+  .sumValue { font-size: 26px; }
+  .sourceCountValue { font-size: 30px; }
+  .sourcesGrid { grid-template-columns: 1fr; }
+  .doneRow { flex-direction: column; align-items: flex-start; }
+  .doneCta { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .summary { grid-template-columns: 1fr; }
+  .sourceCountValue { font-size: 26px; }
+  .sumValue { font-size: 22px; }
+}

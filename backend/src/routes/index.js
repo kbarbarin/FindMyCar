@@ -8,6 +8,7 @@ import { statsRouter } from './stats.routes.js';
 import { internalRouter } from './internal.routes.js';
 import { meRouter } from './me.routes.js';
 import { favoritesRouter } from './favorites.routes.js';
+import { scrapeRouter } from './scrape.routes.js';
 
 export const routes = Router();
 
@@ -20,3 +21,4 @@ routes.use('/stats', statsRouter);
 routes.use('/internal', internalRouter);
 routes.use('/me', meRouter);
 routes.use('/favorites', favoritesRouter);
+routes.use('/scrape', scrapeRouter);

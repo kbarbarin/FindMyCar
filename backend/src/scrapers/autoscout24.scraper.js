@@ -27,6 +27,7 @@ export class Autoscout24Scraper extends BaseScraper {
     if (criteria.yearMax) params.set('fregto', criteria.yearMax);
     if (criteria.mileageMax) params.set('kmto', criteria.mileageMax);
     if (criteria.priceMax) params.set('priceto', criteria.priceMax);
+    if (criteria.page && criteria.page > 1) params.set('page', String(criteria.page));
     return `${this.baseUrl}${path}?${params.toString()}`;
   }
 

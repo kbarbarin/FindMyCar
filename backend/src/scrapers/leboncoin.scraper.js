@@ -29,6 +29,7 @@ export class LeboncoinScraper extends BaseScraper {
     if (criteria.priceMin || criteria.priceMax) params.set('price', `${criteria.priceMin ?? ''}-${criteria.priceMax ?? ''}`);
     if (criteria.mileageMin || criteria.mileageMax) params.set('mileage', `${criteria.mileageMin ?? ''}-${criteria.mileageMax ?? ''}`);
     if (criteria.yearMin || criteria.yearMax) params.set('regdate', `${criteria.yearMin ?? ''}-${criteria.yearMax ?? ''}`);
+    if (criteria.page && criteria.page > 1) params.set('page', String(criteria.page));
     return `${this.baseUrl}/recherche?${params.toString()}`;
   }
 

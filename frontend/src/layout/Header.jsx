@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
-import { BarChart3, Heart, LogIn, LogOut, Search, UserCircle2 } from 'lucide-react';
+import { BarChart3, Heart, LogIn, LogOut, Radar, Search, UserCircle2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth.js';
 import styles from './Header.module.css';
 
@@ -54,6 +54,9 @@ export default function Header() {
         <nav className={styles.nav} aria-label="Navigation principale">
           <NavLink to="/search" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
             <Search size={15} /> <span>Recherche</span>
+          </NavLink>
+          <NavLink to="/scrape" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
+            <Radar size={15} /> <span>Scrape</span>
           </NavLink>
           <NavLink to="/stats" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
             <BarChart3 size={15} /> <span>Marche</span>

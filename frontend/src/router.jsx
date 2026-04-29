@@ -21,6 +21,14 @@ const StatsPageSuspense = () => (
   </Suspense>
 );
 
+// Page Deep Scrape : utilisateurs power, code-splittee aussi.
+const DeepScrapePage = lazy(() => import('./pages/DeepScrapePage.jsx'));
+const DeepScrapePageSuspense = () => (
+  <Suspense fallback={<div className="container" style={{ padding: 'var(--space-8) 0' }}><LoadingState count={2} /></div>}>
+    <DeepScrapePage />
+  </Suspense>
+);
+
 export const router = createBrowserRouter([
   // Pages d'auth — publiques, sans AppLayout (header/footer cachés)
   { path: '/login', element: <LoginPage /> },
@@ -38,6 +46,7 @@ export const router = createBrowserRouter([
       { path: 'listing/:id', element: <ListingDetailPage /> },
       { path: 'favorites', element: <FavoritesPage /> },
       { path: 'stats', element: <StatsPageSuspense /> },
+      { path: 'scrape', element: <DeepScrapePageSuspense /> },
       { path: 'account', element: <AccountPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
