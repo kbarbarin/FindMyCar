@@ -31,6 +31,19 @@ async function withCache(name, params, ttlSeconds, fn) {
 export async function overview(_req, res) {
   if (!firestoreService.isEnabled()) return notAvailable(res);
   const data = await withCache('overview', {}, TTL.global, async () => {
+    // Fast path : doc precompute via /api/internal/refresh-stats. 1 read au
+    // lieu de ~25k. Fallback sur les queries live si le doc n'existe pas
+    // (premier deploiement, refresh jamais lance).
+    const agg = await firestoreService.getAggregateGlobal();
+    if (agg) {
+      return {
+        total: agg.totalListings,
+        coverage: agg.bySource || [],
+        volume: agg.volume30d || [],
+        _refreshedAt: agg.refreshedAt,
+        _sampleSize: agg.sampleSize,
+      };
+    }
     const [total, coverage, volume] = await Promise.all([
       firestoreService.totalCount(),
       firestoreService.coverageBySource(),
@@ -123,7 +136,24 @@ export async function match(req, res) {
     mileageMax: q.mileageMax, priceMin: q.priceMin, priceMax: q.priceMax,
     daysWindow: q.daysWindow, buckets: q.buckets, listingsLimit: q.listingsLimit,
   };
+
+  // Filtres ranges qu'un doc precompute ne sait pas restreindre (yearMin/Max,
+  // mileageMax, priceMin/Max). Si presents → fallback live query.
+  const hasRangeFilter = ['yearMin', 'yearMax', 'mileageMax', 'priceMin', 'priceMax']
+    .some((k) => q[k] != null && q[k] !== '');
+
   const data = await withCache('match', params, TTL.filtered, async () => {
+    // Fast path 1 : aucun filtre → doc global (1 read)
+    if (!q.make && !q.model && !q.country && !hasRangeFilter) {
+      const agg = await firestoreService.getAggregateGlobal();
+      if (agg) return aggregateToMatchShape(agg);
+    }
+    // Fast path 2 : make+model fixes, pas de filtre range → doc vehicule (1 read)
+    if (q.make && q.model && !hasRangeFilter && !q.country) {
+      const v = await firestoreService.getVehicleStats(q.make, q.model);
+      if (v) return vehicleToMatchShape(v);
+    }
+    // Slow path : query live + filtrage memoire
     return firestoreService.matchListings({
       make: q.make || undefined,
       model: q.model || undefined,
@@ -139,4 +169,37 @@ export async function match(req, res) {
     });
   });
   res.json(data || { total: 0 });
+}
+
+// Adapte un doc stats_aggregates/global au shape attendu par /api/stats/match
+function aggregateToMatchShape(agg) {
+  return {
+    total: agg.totalListings ?? agg.count ?? 0,
+    daysWindow: 60,
+    prices: agg.prices,
+    years: agg.years,
+    mileage: agg.mileage,
+    countries: agg.byCountry || [],
+    topModels: agg.topModels || [],
+    distribution: agg.distribution,
+    listings: [],
+    _source: 'precomputed_global',
+    _refreshedAt: agg.refreshedAt,
+  };
+}
+
+function vehicleToMatchShape(v) {
+  return {
+    total: v.count ?? 0,
+    daysWindow: 60,
+    prices: v.prices,
+    years: v.years,
+    mileage: v.mileage,
+    countries: v.byCountry || [],
+    topModels: [{ make: v.make, model: v.model, count: v.count }],
+    distribution: v.distribution,
+    listings: v.topListings || [],
+    _source: 'precomputed_vehicle',
+    _refreshedAt: v.refreshedAt,
+  };
 }

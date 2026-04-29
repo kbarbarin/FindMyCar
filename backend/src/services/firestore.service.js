@@ -73,6 +73,120 @@ init();
 // --- Helpers ---
 function docIdFromListing(id) { return String(id).replace(/[\/#?]/g, '_'); }
 
+// ID Firestore safe pour un couple (make, model). Le '+' de canonicalKey est
+// remplace par 'p' pour eviter les caracteres URL-unsafe : 'Toyota Prius+'
+// devient 'toyota_priusp', distinct de 'toyota_prius'.
+function vehicleDocId(make, model) {
+  const m = canonicalKey(make).replace(/\+/g, 'p');
+  const mo = canonicalKey(model).replace(/\+/g, 'p');
+  if (!m || !mo) return null;
+  return `${m}_${mo}`;
+}
+
+// Calcule un agregat complet sur un sample : prix, annee, km, breakdown
+// pays/source, top modeles, distribution prix, et top listings (option).
+// C'est utilise a la fois pour les aggregates global et per-vehicle.
+function computeAggregate(listings, { includeTopModels = 0, includeListings = 0 } = {}) {
+  if (!listings || !listings.length) {
+    return { count: 0, prices: null, years: null, mileage: null, byCountry: [], bySource: [], topModels: [], distribution: null, topListings: [] };
+  }
+  const out = { count: listings.length };
+
+  // Prix
+  const prices = listings.map((l) => l.price?.amount).filter((p) => p != null && p > 0).sort((a, b) => a - b);
+  out.prices = prices.length ? quantileStats(prices) : null;
+
+  // Annee
+  const years = listings.map((l) => l.year).filter((y) => y != null);
+  out.years = years.length ? {
+    count: years.length,
+    min: Math.min(...years),
+    max: Math.max(...years),
+    average: Math.round(years.reduce((s, y) => s + y, 0) / years.length),
+  } : null;
+
+  // Km
+  const km = listings.map((l) => l.mileageKm).filter((k) => k != null && k >= 0).sort((a, b) => a - b);
+  out.mileage = km.length ? quantileStats(km) : null;
+
+  // Country breakdown
+  const countryCounts = new Map();
+  for (const l of listings) {
+    const c = l.country || 'XX';
+    countryCounts.set(c, (countryCounts.get(c) || 0) + 1);
+  }
+  out.byCountry = [...countryCounts.entries()]
+    .map(([country, count]) => ({ country, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // Source breakdown
+  const sourceCounts = new Map();
+  for (const l of listings) {
+    const sid = l.source?.id;
+    if (!sid) continue;
+    sourceCounts.set(sid, (sourceCounts.get(sid) || 0) + 1);
+  }
+  out.bySource = [...sourceCounts.entries()]
+    .map(([sourceId, count]) => ({ sourceId, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // Top modeles (groupe via canonicalKey, normalizeMake/Model importes en haut)
+  if (includeTopModels > 0) {
+    const groups = new Map();
+    for (const l of listings) {
+      const make = normalizeMake(l.make);
+      const model = normalizeModel(l.model);
+      if (!make || !model) continue;
+      const key = `${canonicalKey(make)}|${canonicalKey(model)}`;
+      const entry = groups.get(key);
+      if (entry) entry.count++;
+      else groups.set(key, { make, model, count: 1 });
+    }
+    out.topModels = [...groups.values()].sort((a, b) => b.count - a.count).slice(0, includeTopModels);
+  } else {
+    out.topModels = [];
+  }
+
+  // Distribution prix (histogramme p5-p95)
+  out.distribution = null;
+  if (prices.length >= 5) {
+    const buckets = 12;
+    const lo = prices[Math.floor(prices.length * 0.05)];
+    const hi = prices[Math.floor(prices.length * 0.95)] || prices[prices.length - 1];
+    const step = (hi - lo) / buckets || 1;
+    const dist = Array.from({ length: buckets }, (_, i) => ({
+      from: Math.round(lo + i * step),
+      to: Math.round(lo + (i + 1) * step),
+      count: 0,
+    }));
+    for (const p of prices) {
+      if (p < lo) { dist[0].count++; continue; }
+      if (p >= hi) { dist[dist.length - 1].count++; continue; }
+      const idx = Math.min(dist.length - 1, Math.floor((p - lo) / step));
+      dist[idx].count++;
+    }
+    out.distribution = { total: prices.length, lo, hi, step: Math.round(step), buckets: dist };
+  }
+
+  // Top annonces (option pour les docs vehicules)
+  if (includeListings > 0) {
+    const completeness = (l) => (l.price?.amount ? 1 : 0) + (l.year ? 1 : 0) + (l.mileageKm != null ? 1 : 0) + (l.photos?.[0] ? 1 : 0);
+    out.topListings = [...listings]
+      .sort((a, b) => {
+        const ca = completeness(a), cb = completeness(b);
+        if (cb !== ca) return cb - ca;
+        const ta = a.lastSeenAt?.toMillis?.() ?? 0;
+        const tb = b.lastSeenAt?.toMillis?.() ?? 0;
+        return tb - ta;
+      })
+      .slice(0, includeListings);
+  } else {
+    out.topListings = [];
+  }
+
+  return out;
+}
+
 // Stats quantiles sur un tableau deja TRIE croissant.
 function quantileStats(sorted) {
   const n = sorted.length;
@@ -103,6 +217,104 @@ export const firestoreService = {
   isEnabled: () => enabled,
 
   // --- Listings -------------------------------------------------------
+  // === Stats precomputees =============================================
+  // Strategie : on lit /listings en bloc une fois (~10k reads max) et on ecrit
+  // des docs agreges pre-calcules :
+  //   - stats_aggregates/global   : tout le marche
+  //   - stats_aggregates/meta     : timestamp + sampleSize du dernier refresh
+  //   - stats_vehicles/{key}      : 1 doc par couple make+model normalise
+  //                                  (avec stats + top 12 annonces)
+  //
+  // Ainsi quand le user visite /stats : 1 read au lieu de 7500. Le refresh est
+  // declenche manuellement via POST /api/internal/refresh-stats (a brancher
+  // au Cloud Scheduler — ex. toutes les 4h).
+
+  async getAggregateGlobal() {
+    if (!enabled) return null;
+    const snap = await db.collection('stats_aggregates').doc('global').get();
+    return snap.exists ? snap.data() : null;
+  },
+
+  async getAggregateMeta() {
+    if (!enabled) return null;
+    const snap = await db.collection('stats_aggregates').doc('meta').get();
+    return snap.exists ? snap.data() : null;
+  },
+
+  async getVehicleStats(make, model) {
+    if (!enabled || !make || !model) return null;
+    const id = vehicleDocId(make, model);
+    if (!id) return null;
+    const snap = await db.collection('stats_vehicles').doc(id).get();
+    return snap.exists ? snap.data() : null;
+  },
+
+  // Recompute global + per-vehicle aggregates a partir d'un sample du
+  // listings collection. A appeler periodiquement (cron 4-6h).
+  async refreshAggregates({ sampleSize = 10000, minVehicleSize = 3 } = {}) {
+    if (!enabled) return { error: 'disabled' };
+    const startedAt = Date.now();
+
+    // 1) Sample : on prend les plus recents pour rester representatif
+    const snap = await db.collection('listings')
+      .orderBy('lastSeenAt', 'desc')
+      .limit(sampleSize)
+      .get();
+    const listings = snap.docs.map((d) => d.data());
+
+    // 2) Stats globales
+    const global = computeAggregate(listings, { includeTopModels: 30, includeListings: 0 });
+    const totalCount = await db.collection('listings').count().get().catch(() => null);
+    global.totalListings = totalCount?.data().count ?? listings.length;
+    global.refreshedAt = Timestamp.now();
+    global.sampleSize = listings.length;
+
+    await db.collection('stats_aggregates').doc('global').set(stripUndefined(global));
+
+    // 3) Groupes par vehicule (canonical key)
+    const groups = new Map();
+    for (const l of listings) {
+      const make = normalizeMake(l.make);
+      const model = normalizeModel(l.model);
+      if (!make || !model) continue;
+      const id = vehicleDocId(make, model);
+      if (!id) continue;
+      const entry = groups.get(id);
+      if (entry) entry.listings.push(l);
+      else groups.set(id, { make, model, listings: [l] });
+    }
+
+    // 4) Filtre les groupes trop petits, ecrit en batch
+    const eligible = [...groups.entries()].filter(([, g]) => g.listings.length >= minVehicleSize);
+    let writtenVehicles = 0;
+    const BATCH = 400;
+    for (let i = 0; i < eligible.length; i += BATCH) {
+      const batch = db.batch();
+      for (const [id, group] of eligible.slice(i, i + BATCH)) {
+        const stats = computeAggregate(group.listings, { includeTopModels: 0, includeListings: 12 });
+        stats.make = group.make;
+        stats.model = group.model;
+        stats.canonicalId = id;
+        stats.refreshedAt = Timestamp.now();
+        batch.set(db.collection('stats_vehicles').doc(id), stripUndefined(stats));
+        writtenVehicles++;
+      }
+      await batch.commit().catch((err) => log.warn('aggregates.vehicle_batch_failed', { msg: err.message }));
+    }
+
+    // 5) Meta
+    const meta = {
+      refreshedAt: Timestamp.now(),
+      sampleSize: listings.length,
+      vehicleCount: writtenVehicles,
+      durationMs: Date.now() - startedAt,
+    };
+    await db.collection('stats_aggregates').doc('meta').set(meta);
+
+    log.info('aggregates.refreshed', meta);
+    return meta;
+  },
+
   // Backfill : iterate /listings, re-applique normalizeMake/normalizeModel sur
   // les champs make/model existants, ecrit en place si la valeur a change.
   // A faire 1 fois apres avoir change la logique de normalisation.

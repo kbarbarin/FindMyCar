@@ -91,6 +91,38 @@ export async function status(_req, res) {
   });
 }
 
+// Recompute les docs stats_aggregates/global + stats_vehicles/{key}.
+// A brancher au Cloud Scheduler (toutes les 4-6h) :
+//   gcloud scheduler jobs create http findmycar-refresh-stats \
+//     --schedule='0 */6 * * *' \
+//     --uri='<backend>/api/internal/refresh-stats' \
+//     --http-method=POST \
+//     --headers='X-Scheduler-Secret: ...'
+// Cout : ~10k reads par refresh + 1 write par vehicule (typique 50-300).
+// Benefice : chaque visite a /stats coute desormais 1 read au lieu de 7500.
+export async function refreshStats(req, res) {
+  if (!requireSecret(req, res)) return;
+  if (!firestoreService.isEnabled()) {
+    return res.status(503).json({ error: 'firestore_disabled' });
+  }
+  const sampleSize = parseInt(req.query.sampleSize, 10) || 10000;
+  res.status(202).json({ status: 'started', sampleSize });
+  (async () => {
+    try {
+      const out = await firestoreService.refreshAggregates({ sampleSize });
+      log.info('refresh_stats.done', out);
+    } catch (err) {
+      log.error('refresh_stats.fatal', { msg: err.message });
+    }
+  })();
+}
+
+export async function statsMeta(_req, res) {
+  if (!firestoreService.isEnabled()) return res.status(503).json({ error: 'firestore_disabled' });
+  const meta = await firestoreService.getAggregateMeta();
+  res.json(meta || { status: 'never_refreshed' });
+}
+
 // One-shot : reapplique normalizeMake/normalizeModel sur toutes les annonces
 // existantes pour eliminer les variantes de casse (Toyota PRIUS / toyota prius
 // / Toyota Prius) heritees de la donnee historique.

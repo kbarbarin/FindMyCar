@@ -6,3 +6,5 @@ export const internalRouter = Router();
 internalRouter.get('/status', asyncHandler(internal.status));
 internalRouter.post('/scrape', asyncHandler(internal.runBatch));
 internalRouter.post('/normalize-listings', asyncHandler(internal.normalizeListings));
+internalRouter.post('/refresh-stats', asyncHandler(internal.refreshStats));
+internalRouter.get('/stats-meta', asyncHandler(internal.statsMeta));
