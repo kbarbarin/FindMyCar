@@ -261,7 +261,7 @@ export const firestoreService = {
   },
 
   // --- Stats ---------------------------------------------------------
-  async medianPrices({ make, model, country, daysWindow = 30, limit = 2000 } = {}) {
+  async medianPrices({ make, model, country, daysWindow = 30, limit = 1000 } = {}) {
     if (!enabled) return null;
     const cutoff = Timestamp.fromMillis(Date.now() - daysWindow * 86400000);
     let q = db.collection('listings').where('lastSeenAt', '>', cutoff).limit(limit);
@@ -284,7 +284,9 @@ export const firestoreService = {
 
   async topModels({ country, limit = 20 } = {}) {
     if (!enabled) return [];
-    let q = db.collection('listings').select('make', 'model', 'country').limit(5000);
+    // Limite reduite de 5000 -> 1500 pour limiter les reads. Au-dela de 1500
+    // l'echantillon est largement suffisant pour identifier les top modeles.
+    let q = db.collection('listings').select('make', 'model', 'country').limit(1500);
     if (country) q = q.where('country', '==', country);
     const snap = await q.get();
     // On groupe par canonical key (lowercase + alphanum + '+'), donc
@@ -308,7 +310,9 @@ export const firestoreService = {
 
   async coverageBySource() {
     if (!enabled) return [];
-    const snap = await db.collection('listings').select('source').limit(10000).get();
+    // 10000 -> 2000 reads. L'echantillon de 2000 reste representatif des
+    // proportions par source.
+    const snap = await db.collection('listings').select('source').limit(2000).get();
     const counts = new Map();
     for (const d of snap.docs) {
       const sid = d.data().source?.id;
@@ -318,8 +322,9 @@ export const firestoreService = {
     return [...counts.entries()].map(([sourceId, count]) => ({ sourceId, count })).sort((a, b) => b.count - a.count);
   },
 
-  async breakdownByCountry({ limit = 10000 } = {}) {
+  async breakdownByCountry({ limit = 2000 } = {}) {
     if (!enabled) return [];
+    // 10000 -> 2000 par defaut (representatif, 5x moins de reads)
     const snap = await db.collection('listings').select('country').limit(limit).get();
     const counts = new Map();
     for (const d of snap.docs) {
@@ -338,7 +343,7 @@ export const firestoreService = {
   async matchListings({
     make, model, country,
     yearMin, yearMax, mileageMax, priceMin, priceMax,
-    daysWindow = 60, buckets = 12, listingsLimit = 12, fetchLimit = 2000,
+    daysWindow = 60, buckets = 12, listingsLimit = 12, fetchLimit = 1000,
   } = {}) {
     if (!enabled) return null;
 
@@ -363,11 +368,12 @@ export const firestoreService = {
       docs = (await q.get()).docs.map((d) => d.data());
     } catch (err) {
       log.warn('firestore.match_failed', { msg: err.message });
-      // Degraded fallback : on retire l'index compose si manquant
+      // Degraded fallback : on retire le where compose si manquant. Limite
+      // fortement reduite parce qu'on relit avec un autre cout cumulatif.
       const snap = await db.collection('listings')
         .where('lastSeenAt', '>', cutoff)
         .orderBy('lastSeenAt', 'desc')
-        .limit(fetchLimit)
+        .limit(Math.min(500, fetchLimit))
         .get();
       docs = snap.docs.map((d) => d.data());
     }
@@ -494,7 +500,8 @@ export const firestoreService = {
   async priceDistribution({ make, model, country, daysWindow = 60, buckets = 12 } = {}) {
     if (!enabled) return null;
     const cutoff = Timestamp.fromMillis(Date.now() - daysWindow * 86400000);
-    let q = db.collection('listings').where('lastSeenAt', '>', cutoff).limit(5000);
+    // 5000 -> 1500 reads. Les buckets se calculent bien sur 1500 echantillons.
+    let q = db.collection('listings').where('lastSeenAt', '>', cutoff).limit(1500);
     if (make) q = q.where('make', '==', make);
     if (model) q = q.where('model', '==', model);
     if (country) q = q.where('country', '==', country);
@@ -523,10 +530,12 @@ export const firestoreService = {
   async volumeByDay({ days = 30 } = {}) {
     if (!enabled) return [];
     const cutoff = Timestamp.fromMillis(Date.now() - days * 86400000);
+    // 10000 -> 3000 : sur 30 jours c'est ~100 docs/jour scrapes echantillonnes,
+    // largement suffisant pour la courbe de tendance.
     const snap = await db.collection('listings')
       .where('firstSeenAt', '>', cutoff)
       .select('firstSeenAt')
-      .limit(10000)
+      .limit(3000)
       .get();
     const buckets = new Map();
     for (const d of snap.docs) {
