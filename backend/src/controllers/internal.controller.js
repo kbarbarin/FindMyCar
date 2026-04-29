@@ -92,25 +92,42 @@ export async function status(_req, res) {
 }
 
 // Recompute les docs stats_aggregates/global + stats_vehicles/{key}.
-// A brancher au Cloud Scheduler (toutes les 4-6h) :
+// Skip intelligent : si moins de N listings ont change depuis le dernier
+// refresh, on ne fait rien (~1 read pour la verif). Pour forcer : ?force=true.
+//
+// A brancher au Cloud Scheduler (recommande : 1×/jour le matin) :
 //   gcloud scheduler jobs create http findmycar-refresh-stats \
-//     --schedule='0 */6 * * *' \
+//     --schedule='30 5 * * *' --time-zone='Europe/Paris' \
 //     --uri='<backend>/api/internal/refresh-stats' \
 //     --http-method=POST \
 //     --headers='X-Scheduler-Secret: ...'
-// Cout : ~10k reads par refresh + 1 write par vehicule (typique 50-300).
-// Benefice : chaque visite a /stats coute desormais 1 read au lieu de 7500.
+//
+// Query params :
+//   force=true   : bypass la verif de changement (utile au 1er bootstrap)
+//   threshold=N  : nombre min de listings changes pour declencher (defaut 20)
+//   sampleSize=N : taille du sample listings a re-aggreger (defaut 10000)
 export async function refreshStats(req, res) {
   if (!requireSecret(req, res)) return;
   if (!firestoreService.isEnabled()) {
     return res.status(503).json({ error: 'firestore_disabled' });
   }
   const sampleSize = parseInt(req.query.sampleSize, 10) || 10000;
-  res.status(202).json({ status: 'started', sampleSize });
+  const force = req.query.force === 'true' || req.query.force === '1';
+  const threshold = parseInt(req.query.threshold, 10);
+  const minChangeThreshold = Number.isFinite(threshold) ? threshold : 20;
+
+  res.status(202).json({ status: 'started', sampleSize, force, minChangeThreshold });
+
   (async () => {
     try {
-      const out = await firestoreService.refreshAggregates({ sampleSize });
-      log.info('refresh_stats.done', out);
+      const out = await firestoreService.refreshAggregates({
+        sampleSize, force, minChangeThreshold,
+      });
+      if (out?.skipped) {
+        log.info('refresh_stats.skipped', out);
+      } else {
+        log.info('refresh_stats.done', out);
+      }
     } catch (err) {
       log.error('refresh_stats.fatal', { msg: err.message });
     }

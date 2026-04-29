@@ -250,10 +250,47 @@ export const firestoreService = {
   },
 
   // Recompute global + per-vehicle aggregates a partir d'un sample du
-  // listings collection. A appeler periodiquement (cron 4-6h).
-  async refreshAggregates({ sampleSize = 10000, minVehicleSize = 3 } = {}) {
+  // listings collection. A appeler periodiquement (cron quotidien).
+  //
+  // Skip intelligent : compte les listings dont lastSeenAt a change depuis le
+  // dernier refresh. Si en-dessous de minChangeThreshold, on ne re-aggregate
+  // pas (~1 read pour la verif, 0 pour le refresh). force=true bypass.
+  async refreshAggregates({
+    sampleSize = 10000,
+    minVehicleSize = 3,
+    force = false,
+    minChangeThreshold = 20,
+  } = {}) {
     if (!enabled) return { error: 'disabled' };
     const startedAt = Date.now();
+
+    // 0) Skip si rien n'a bouge depuis le dernier refresh
+    if (!force) {
+      const metaSnap = await db.collection('stats_aggregates').doc('meta').get();
+      if (metaSnap.exists) {
+        const lastRefresh = metaSnap.data().refreshedAt;
+        if (lastRefresh) {
+          // count() = 1 read par 1000 docs comptes (tres bon marche)
+          const changeSnap = await db.collection('listings')
+            .where('lastSeenAt', '>', lastRefresh)
+            .count()
+            .get();
+          const changedCount = changeSnap.data().count;
+          if (changedCount < minChangeThreshold) {
+            log.info('aggregates.skipped_no_changes', { changedCount, threshold: minChangeThreshold });
+            return {
+              skipped: true,
+              reason: 'no_changes',
+              changedCount,
+              threshold: minChangeThreshold,
+              lastRefreshedAt: lastRefresh,
+              durationMs: Date.now() - startedAt,
+            };
+          }
+          log.info('aggregates.changes_detected', { changedCount, threshold: minChangeThreshold });
+        }
+      }
+    }
 
     // 1) Sample : on prend les plus recents pour rester representatif
     const snap = await db.collection('listings')
@@ -308,6 +345,7 @@ export const firestoreService = {
       sampleSize: listings.length,
       vehicleCount: writtenVehicles,
       durationMs: Date.now() - startedAt,
+      forced: Boolean(force),
     };
     await db.collection('stats_aggregates').doc('meta').set(meta);
 
