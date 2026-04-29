@@ -90,3 +90,23 @@ export async function status(_req, res) {
     secretConfigured: Boolean(process.env.SCHEDULER_SECRET),
   });
 }
+
+// One-shot : reapplique normalizeMake/normalizeModel sur toutes les annonces
+// existantes pour eliminer les variantes de casse (Toyota PRIUS / toyota prius
+// / Toyota Prius) heritees de la donnee historique.
+// POST /api/internal/normalize-listings   header X-Scheduler-Secret
+export async function normalizeListings(req, res) {
+  if (!requireSecret(req, res)) return;
+  if (!firestoreService.isEnabled()) {
+    return res.status(503).json({ error: 'firestore_disabled' });
+  }
+  res.status(202).json({ status: 'started' });
+  (async () => {
+    try {
+      const out = await firestoreService.normalizeAllListings({ batchSize: 400, max: 50000 });
+      log.info('normalize.done', out);
+    } catch (err) {
+      log.error('normalize.fatal', { msg: err.message });
+    }
+  })();
+}

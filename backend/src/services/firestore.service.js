@@ -15,6 +15,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { logger } from '../utils/logger.js';
+import { normalizeMake, normalizeModel, canonicalKey } from '../normalizers/taxonomy.js';
 
 const log = logger.child({ service: 'firestore' });
 
@@ -86,6 +87,45 @@ export const firestoreService = {
   isEnabled: () => enabled,
 
   // --- Listings -------------------------------------------------------
+  // Backfill : iterate /listings, re-applique normalizeMake/normalizeModel sur
+  // les champs make/model existants, ecrit en place si la valeur a change.
+  // A faire 1 fois apres avoir change la logique de normalisation.
+  async normalizeAllListings({ batchSize = 400, max = 50000 } = {}) {
+    if (!enabled) return { processed: 0, updated: 0 };
+    const col = db.collection('listings');
+    let processed = 0, updated = 0, lastDoc = null;
+    while (processed < max) {
+      let q = col.orderBy('__name__').limit(batchSize);
+      if (lastDoc) q = q.startAfter(lastDoc);
+      const snap = await q.get();
+      if (snap.empty) break;
+      const batch = db.batch();
+      let batchUpdates = 0;
+      for (const d of snap.docs) {
+        const data = d.data();
+        const before = { make: data.make, model: data.model };
+        const make = normalizeMake(data.make);
+        const model = normalizeModel(data.model);
+        if (make !== before.make || model !== before.model) {
+          batch.update(d.ref, {
+            ...(make != null && make !== before.make && { make }),
+            ...(model != null && model !== before.model && { model }),
+          });
+          batchUpdates++;
+        }
+        processed++;
+        lastDoc = d;
+      }
+      if (batchUpdates > 0) {
+        await batch.commit().catch((err) => log.warn('firestore.normalize_batch_failed', { msg: err.message }));
+        updated += batchUpdates;
+      }
+      if (snap.size < batchSize) break;
+    }
+    log.info('firestore.normalize_done', { processed, updated });
+    return { processed, updated };
+  },
+
   async upsertListings(listings) {
     if (!enabled || !listings?.length) return { written: 0 };
     const col = db.collection('listings');
@@ -231,15 +271,21 @@ export const firestoreService = {
     let q = db.collection('listings').select('make', 'model', 'country').limit(5000);
     if (country) q = q.where('country', '==', country);
     const snap = await q.get();
-    const counts = new Map();
+    // On groupe par canonical key (lowercase + alphanum + '+'), donc
+    // 'Toyota Prius' + 'TOYOTA prius' + 'toyota Prius' fusionnent. On garde
+    // la version normalisee (Title-cased) comme libelle d'affichage.
+    const groups = new Map();
     for (const d of snap.docs) {
       const data = d.data();
-      if (!data.make || !data.model) continue;
-      const key = `${data.make}|${data.model}`;
-      counts.set(key, (counts.get(key) || 0) + 1);
+      const make = normalizeMake(data.make);
+      const model = normalizeModel(data.model);
+      if (!make || !model) continue;
+      const key = `${canonicalKey(make)}|${canonicalKey(model)}`;
+      const entry = groups.get(key);
+      if (entry) entry.count++;
+      else groups.set(key, { make, model, count: 1 });
     }
-    return [...counts.entries()]
-      .map(([k, count]) => { const [make, model] = k.split('|'); return { make, model, count }; })
+    return [...groups.values()]
       .sort((a, b) => b.count - a.count)
       .slice(0, limit);
   },
