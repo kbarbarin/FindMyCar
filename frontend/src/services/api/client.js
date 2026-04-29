@@ -60,6 +60,7 @@ export const apiClient = {
     volume:       (days) => request('/api/stats/volume', { query: { days } }),
     countries:    () => request('/api/stats/countries'),
     distribution: (q) => request('/api/stats/distribution', { query: q }),
+    match:        (q) => request('/api/stats/match', { query: q }),
   },
   me: () => request('/api/me'),
   favorites: {

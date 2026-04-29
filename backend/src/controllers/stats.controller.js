@@ -60,3 +60,28 @@ export async function distribution(req, res) {
   });
   res.json({ distribution: dist });
 }
+
+// Endpoint unifie : prend tous les criteres et renvoie agreges + top annonces
+export async function match(req, res) {
+  if (!firestoreService.isEnabled()) return notAvailable(res);
+  const q = req.query;
+  const toNum = (v) => {
+    if (v == null || v === '') return undefined;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  };
+  const out = await firestoreService.matchListings({
+    make: q.make || undefined,
+    model: q.model || undefined,
+    country: q.country || undefined,
+    yearMin: toNum(q.yearMin),
+    yearMax: toNum(q.yearMax),
+    mileageMax: toNum(q.mileageMax),
+    priceMin: toNum(q.priceMin),
+    priceMax: toNum(q.priceMax),
+    daysWindow: toNum(q.daysWindow) || 60,
+    buckets: toNum(q.buckets) || 12,
+    listingsLimit: toNum(q.listingsLimit) || 12,
+  });
+  res.json(out || { total: 0 });
+}

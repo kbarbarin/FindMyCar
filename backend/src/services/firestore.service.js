@@ -72,6 +72,22 @@ init();
 
 // --- Helpers ---
 function docIdFromListing(id) { return String(id).replace(/[\/#?]/g, '_'); }
+
+// Stats quantiles sur un tableau deja TRIE croissant.
+function quantileStats(sorted) {
+  const n = sorted.length;
+  const mid = Math.floor(n / 2);
+  return {
+    count: n,
+    min: sorted[0],
+    max: sorted[n - 1],
+    median: Math.round(n % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2),
+    average: Math.round(sorted.reduce((s, v) => s + v, 0) / n),
+    p25: sorted[Math.floor(n * 0.25)],
+    p75: sorted[Math.floor(n * 0.75)],
+  };
+}
+
 function stripUndefined(obj) {
   if (obj === null || typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(stripUndefined).filter((v) => v !== undefined);
@@ -313,6 +329,165 @@ export const firestoreService = {
     return [...counts.entries()]
       .map(([country, count]) => ({ country, count }))
       .sort((a, b) => b.count - a.count);
+  },
+
+  // Endpoint unique pour la page Marche : prend tous les criteres et renvoie
+  // l'integralite des agregats + le top des annonces correspondantes. On fait
+  // une SEULE query Firestore (la plus selective possible via les index
+  // composites disponibles), puis on filtre/calcule tout en memoire.
+  async matchListings({
+    make, model, country,
+    yearMin, yearMax, mileageMax, priceMin, priceMax,
+    daysWindow = 60, buckets = 12, listingsLimit = 12, fetchLimit = 2000,
+  } = {}) {
+    if (!enabled) return null;
+
+    // Normalise make/model AVANT la query Firestore : la base contient
+    // 'Toyota' / 'Prius' (Title-cased), le user peut taper 'toyota'/'TOYOTA'.
+    const normMake = make ? normalizeMake(make) : null;
+    const normModel = model ? normalizeModel(model) : null;
+
+    const cutoff = Timestamp.fromMillis(Date.now() - daysWindow * 86400000);
+    let q = db.collection('listings').where('lastSeenAt', '>', cutoff);
+
+    // Choisit la combinaison la plus selective qu'un index couvre.
+    if (normMake && normModel) {
+      q = q.where('make', '==', normMake).where('model', '==', normModel);
+    } else if (country) {
+      q = q.where('country', '==', country);
+    }
+    q = q.orderBy('lastSeenAt', 'desc').limit(fetchLimit);
+
+    let docs;
+    try {
+      docs = (await q.get()).docs.map((d) => d.data());
+    } catch (err) {
+      log.warn('firestore.match_failed', { msg: err.message });
+      // Degraded fallback : on retire l'index compose si manquant
+      const snap = await db.collection('listings')
+        .where('lastSeenAt', '>', cutoff)
+        .orderBy('lastSeenAt', 'desc')
+        .limit(fetchLimit)
+        .get();
+      docs = snap.docs.map((d) => d.data());
+    }
+
+    // Filtrage en memoire (les filtres non-indexes ou les complements)
+    const filtered = docs.filter((l) => {
+      if (normMake && !normModel) {
+        if (canonicalKey(l.make) !== canonicalKey(normMake)) return false;
+      }
+      if (normModel && !normMake) {
+        if (canonicalKey(l.model) !== canonicalKey(normModel)) return false;
+      }
+      if (country && normMake && normModel) {
+        if (l.country !== country) return false;
+      }
+      const year = l.year;
+      if (yearMin != null && (year == null || year < yearMin)) return false;
+      if (yearMax != null && (year == null || year > yearMax)) return false;
+      const km = l.mileageKm;
+      if (mileageMax != null && (km == null || km > mileageMax)) return false;
+      const price = l.price?.amount;
+      if (priceMin != null && (price == null || price < priceMin)) return false;
+      if (priceMax != null && (price == null || price > priceMax)) return false;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      return {
+        total: 0, daysWindow,
+        prices: null, years: null, mileage: null,
+        countries: [], topModels: [], distribution: null, listings: [],
+      };
+    }
+
+    // --- Stats prix ---
+    const prices = filtered.map((l) => l.price?.amount).filter((p) => p != null && p > 0).sort((a, b) => a - b);
+    const priceStats = prices.length ? quantileStats(prices) : null;
+
+    // --- Stats annee ---
+    const years = filtered.map((l) => l.year).filter((y) => y != null);
+    const yearStats = years.length ? {
+      count: years.length,
+      min: Math.min(...years),
+      max: Math.max(...years),
+      average: Math.round(years.reduce((s, y) => s + y, 0) / years.length),
+    } : null;
+
+    // --- Stats kilometrage ---
+    const km = filtered.map((l) => l.mileageKm).filter((k) => k != null && k >= 0).sort((a, b) => a - b);
+    const kmStats = km.length ? quantileStats(km) : null;
+
+    // --- Breakdown par pays ---
+    const countryCounts = new Map();
+    for (const l of filtered) {
+      const c = l.country || 'XX';
+      countryCounts.set(c, (countryCounts.get(c) || 0) + 1);
+    }
+    const countriesList = [...countryCounts.entries()]
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // --- Top modeles (groupes via canonicalKey, importe avec les normalizers) ---
+    const modelGroups = new Map();
+    for (const l of filtered) {
+      const m = normalizeMake(l.make);
+      const mo = normalizeModel(l.model);
+      if (!m || !mo) continue;
+      const key = `${canonicalKey(m)}|${canonicalKey(mo)}`;
+      const entry = modelGroups.get(key);
+      if (entry) entry.count++;
+      else modelGroups.set(key, { make: m, model: mo, count: 1 });
+    }
+    const topModels = [...modelGroups.values()]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 12);
+
+    // --- Distribution prix (histogramme avec bornes p5-p95) ---
+    let distribution = null;
+    if (prices.length >= 5) {
+      const lo = prices[Math.floor(prices.length * 0.05)];
+      const hi = prices[Math.floor(prices.length * 0.95)] || prices[prices.length - 1];
+      const step = (hi - lo) / buckets || 1;
+      const dist = Array.from({ length: buckets }, (_, i) => ({
+        from: Math.round(lo + i * step),
+        to: Math.round(lo + (i + 1) * step),
+        count: 0,
+      }));
+      for (const p of prices) {
+        if (p < lo) { dist[0].count++; continue; }
+        if (p >= hi) { dist[dist.length - 1].count++; continue; }
+        const idx = Math.min(dist.length - 1, Math.floor((p - lo) / step));
+        dist[idx].count++;
+      }
+      distribution = { total: prices.length, lo, hi, step: Math.round(step), buckets: dist };
+    }
+
+    // --- Top annonces : sort par fraicheur, on privilegie celles qui ont
+    // toutes les infos critiques (prix + annee + km) pour l'affichage propre.
+    const completeness = (l) => (l.price?.amount ? 1 : 0) + (l.year ? 1 : 0) + (l.mileageKm != null ? 1 : 0) + (l.photos?.[0] ? 1 : 0);
+    const listings = [...filtered]
+      .sort((a, b) => {
+        const ca = completeness(a), cb = completeness(b);
+        if (cb !== ca) return cb - ca;
+        const ta = a.lastSeenAt?.toMillis?.() ?? 0;
+        const tb = b.lastSeenAt?.toMillis?.() ?? 0;
+        return tb - ta;
+      })
+      .slice(0, listingsLimit);
+
+    return {
+      total: filtered.length,
+      daysWindow,
+      prices: priceStats,
+      years: yearStats,
+      mileage: kmStats,
+      countries: countriesList,
+      topModels,
+      distribution,
+      listings,
+    };
   },
 
   // Repartition de prix par tranche (histogramme) — utile pour la page marche

@@ -1,13 +1,11 @@
 /* === Header === */
 .header {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
   padding-bottom: var(--space-5);
   border-bottom: 1px solid var(--color-border);
-  flex-wrap: wrap;
 }
 
 .headerLeft {
@@ -34,43 +32,86 @@
   font-weight: 500;
 }
 
-/* Filtre pays */
-.filter { display: flex; flex-direction: column; gap: 4px; min-width: 180px; }
-.filterLabel {
+/* === FilterBar === */
+.filterCard { margin-bottom: var(--space-4); }
+.filterForm { display: flex; flex-direction: column; gap: var(--space-3); }
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-3);
+  align-items: end;
+}
+.filterActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-border);
+}
+
+/* Recap des filtres appliques */
+.chipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-accent);
+}
+.chipsLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  margin-right: 4px;
+  font-weight: 500;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px 4px 10px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.chip:hover {
+  border-color: var(--color-accent-deep);
+  background: var(--color-accent-soft);
+}
+.chipKey {
   font-family: var(--font-mono);
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   color: var(--color-text-subtle);
   font-weight: 500;
 }
-.filterField {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  background: var(--color-paper);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-.filterField:focus-within {
-  border-color: var(--color-accent-deep);
-  box-shadow: var(--focus-ring);
-}
-.filterIcon { color: var(--color-text-subtle); }
-.filterField:focus-within .filterIcon { color: var(--color-accent-deep); }
-.filterSelect {
-  flex: 1;
-  height: 38px;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
+.chipValue {
+  font-weight: var(--weight-semibold);
   color: var(--color-text);
-  cursor: pointer;
-  appearance: none;
+}
+.chipX {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  color: var(--color-text-subtle);
+  font-size: 13px;
+  line-height: 1;
+}
+.chip:hover .chipX {
+  background: var(--color-accent-deep);
+  color: var(--color-accent);
 }
 
 /* === KPI hero === */
@@ -447,6 +488,13 @@
 }
 .tooltipValue { font-weight: var(--weight-semibold); }
 
+/* === Matches grid (annonces correspondantes) === */
+.matchesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
 /* === Empty state === */
 .empty {
   font-family: var(--font-display);
@@ -476,14 +524,17 @@
   .kpis { grid-template-columns: repeat(2, 1fr); }
   .grid2 { grid-template-columns: 1fr; }
   .donutCenter { margin-left: 0; }
+  .filterGrid { grid-template-columns: repeat(3, 1fr); }
+  .matchesGrid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 720px) {
   .header h1 { font-size: var(--text-2xl); }
-  .filter { width: 100%; }
   .kpiValue { font-size: 26px; }
   .sectionTitle { font-size: var(--text-lg); }
   .metricsRow { grid-template-columns: 1fr; }
+  .filterGrid { grid-template-columns: repeat(2, 1fr); }
+  .filterActions { flex-direction: column-reverse; align-items: stretch; }
   .spreadBar { margin: var(--space-3) 4px var(--space-10); height: 76px; }
   .spreadMarkValue { font-size: 9px; }
   .spreadMarkLabel { font-size: 7px; }
@@ -492,6 +543,7 @@
 @media (max-width: 480px) {
   .kpis { grid-template-columns: 1fr; }
   .kpiValue { font-size: 24px; }
+  .filterGrid { grid-template-columns: 1fr; }
   /* Sur tres petit ecran, on cache 1 marqueur sur 2 dans le spread pour eviter la collision */
   .spreadMark:nth-child(2),
   .spreadMark:nth-child(4) {

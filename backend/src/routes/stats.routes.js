@@ -10,3 +10,4 @@ statsRouter.get('/coverage',     asyncHandler(stats.coverage));
 statsRouter.get('/volume',       asyncHandler(stats.volume));
 statsRouter.get('/countries',    asyncHandler(stats.countries));
 statsRouter.get('/distribution', asyncHandler(stats.distribution));
+statsRouter.get('/match',        asyncHandler(stats.match));
