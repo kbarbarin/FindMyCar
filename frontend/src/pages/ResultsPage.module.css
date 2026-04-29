@@ -58,16 +58,6 @@
   min-width: 0;
 }
 
-.partialBanner {
-  background: var(--color-warning-soft);
-  border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
-  color: var(--color-warning-ink);
-  font-size: var(--text-sm);
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  border-left-width: 4px;
-}
-
 @media (max-width: 1024px) {
   .layout { grid-template-columns: 1fr; gap: var(--space-3); }
   .mobileBar { display: flex; }

@@ -11,14 +11,12 @@ import LoadingState from '../components/ui/LoadingState.jsx';
 import ErrorState from '../components/ui/ErrorState.jsx';
 import Card from '../components/ui/Card.jsx';
 import Button from '../components/ui/Button.jsx';
-import DemoBanner from '../components/ui/DemoBanner.jsx';
 import SourceStatusPanel from '../components/search/SourceStatusPanel.jsx';
 import CacheStatusBar from '../components/search/CacheStatusBar.jsx';
 import ScrapingProgressBar from '../components/search/ScrapingProgressBar.jsx';
 import { useCriteriaQuery } from '../hooks/useQueryParams.js';
 import { useStreamingSearch } from '../hooks/useStreamingSearch.js';
 import { useSearchStore } from '../store/searchStore.js';
-import { SOURCE_META_BY_ID } from '../constants/sources.js';
 import styles from './ResultsPage.module.css';
 
 export default function ResultsPage() {
@@ -39,9 +37,7 @@ export default function ResultsPage() {
   const results          = useSearchStore((s) => s.results);
   const suggestions      = useSearchStore((s) => s.suggestions);
   const error            = useSearchStore((s) => s.error);
-  const partialSources   = useSearchStore((s) => s.partialSources);
   const sourceStats      = useSearchStore((s) => s.sourceStats);
-  const fromBackend      = useSearchStore((s) => s.fromBackend);
   const cacheStatus      = useSearchStore((s) => s.cacheStatus);
   const durationMs       = useSearchStore((s) => s.durationMs);
   const liveCount        = useSearchStore((s) => s.liveCount);
@@ -80,10 +76,6 @@ export default function ResultsPage() {
     <div className="container">
       <div className={styles.searchHeader}>
         <SearchBar defaultValue={criteria.q ?? ''} size="md" />
-      </div>
-
-      <div className={styles.demoWrap}>
-        <DemoBanner fromBackend={fromBackend} sourceStats={sourceStats} partialSources={partialSources} />
       </div>
 
       {sourceStats && (
@@ -145,12 +137,6 @@ export default function ResultsPage() {
         {drawerOpen && <div className={styles.backdrop} onClick={() => setDrawerOpen(false)} aria-hidden />}
 
         <div className={styles.main}>
-          {partialSources.length > 0 && (
-            <div className={styles.partialBanner} role="status">
-              Certaines sources n'ont pas pu répondre ({partialSources.map((s) => SOURCE_META_BY_ID[s.id]?.label || s.id).join(', ')}). Résultats partiels.
-            </div>
-          )}
-
           {suggestions.length > 0 && status !== 'loading' && (
             <SearchSuggestions suggestions={suggestions} onApply={applyPatch} />
           )}

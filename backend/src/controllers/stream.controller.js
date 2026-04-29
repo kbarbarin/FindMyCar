@@ -142,11 +142,33 @@ export async function searchStream(req, res) {
 
     if (aborted) return;
 
-    const finalized = finalize(allNormalized, criteria, startedAt, { hit: false, fresh });
+    // Fallback Firestore : si le scrap n'a rien rendu (toutes les sources en
+    // erreur ou pas d'annonces parsables), on bascule sur les listings deja
+    // indexes en Firestore. Le user voit des resultats au lieu d'une page vide.
+    let usedFirestoreFallback = false;
+    let listingsForFinalize = allNormalized;
+
+    if (allNormalized.length === 0 && firestoreService.isEnabled()) {
+      try {
+        const fallback = await firestoreService.searchListings(criteria, { limit: 500 });
+        if (fallback.length > 0) {
+          listingsForFinalize = fallback;
+          usedFirestoreFallback = true;
+        }
+      } catch (err) {
+        log.warn('stream.firestore_fallback_failed', { msg: err.message });
+      }
+    }
+
+    const cacheStatus = usedFirestoreFallback
+      ? { hit: true, source: 'firestore_fallback', ageMinutes: null }
+      : { hit: false, fresh };
+
+    const finalized = finalize(listingsForFinalize, criteria, startedAt, cacheStatus);
     finalized.sourceStats = sourceStats;
 
-    // Persistance Firestore async
-    if (firestoreService.isEnabled() && finalized.results.length > 0 && !wantedIds) {
+    // Persistance Firestore async (uniquement si on a vraiment du live)
+    if (firestoreService.isEnabled() && !usedFirestoreFallback && finalized.results.length > 0 && !wantedIds) {
       const hash = computeCriteriaHash(criteria);
       const ids = finalized.listings.map((l) => l.id);
       queueMicrotask(() => {
@@ -158,8 +180,11 @@ export async function searchStream(req, res) {
     if (firestoreService.isEnabled()) {
       queueMicrotask(() => {
         firestoreService.recordSearch({
-          criteria, resultsCount: finalized.total, source: 'live',
-          durationMs: finalized.durationMs, fresh,
+          criteria,
+          resultsCount: finalized.total,
+          source: usedFirestoreFallback ? 'firestore_fallback' : 'live',
+          durationMs: finalized.durationMs,
+          fresh,
         }).catch(() => {});
       });
     }

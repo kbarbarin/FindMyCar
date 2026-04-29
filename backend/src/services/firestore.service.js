@@ -134,6 +134,41 @@ export const firestoreService = {
     return all;
   },
 
+  // --- Recherche directe dans /listings (fallback quand le scrap echoue) -
+  // Renvoie les listings qui matchent au mieux les criteres en utilisant les
+  // index composites disponibles. Le tri/filtre fin se fait en memoire cote
+  // appelant via filterListings/sortListings.
+  async searchListings(criteria = {}, { limit = 500 } = {}) {
+    if (!enabled) return [];
+    let q = db.collection('listings');
+
+    // On choisit le combo le plus selectif qu'un index couvre :
+    // - make + model + lastSeenAt DESC (composite)
+    // - country + lastSeenAt DESC (composite)
+    // - sinon orderBy lastSeenAt seul (single-field auto-indexe)
+    if (criteria.make && criteria.model) {
+      q = q.where('make', '==', criteria.make).where('model', '==', criteria.model);
+    } else if (Array.isArray(criteria.countries) && criteria.countries.length === 1) {
+      q = q.where('country', '==', criteria.countries[0]);
+    }
+
+    q = q.orderBy('lastSeenAt', 'desc').limit(limit);
+
+    try {
+      const snap = await q.get();
+      return snap.docs.map((d) => d.data());
+    } catch (err) {
+      log.warn('firestore.search_listings_failed', { msg: err.message });
+      // Fallback degraded : on tente sans where ni orderBy si l'index manque
+      try {
+        const snap = await db.collection('listings').limit(limit).get();
+        return snap.docs.map((d) => d.data());
+      } catch {
+        return [];
+      }
+    }
+  },
+
   // --- Cache de recherche --------------------------------------------
   // Stocke pour chaque criteriaHash : la liste d'IDs récupérée + timestamp.
   // Quand on relance la même recherche dans le TTL, on lit cette entrée

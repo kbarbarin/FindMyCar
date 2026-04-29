@@ -141,11 +141,31 @@ export async function aggregatedSearch(criteria) {
     }
   }
 
+  // Fallback Firestore : si le scrap n'a rien rendu (toutes les sources en
+  // erreur ou pas d'annonces parsables), on bascule sur les listings deja
+  // indexes en Firestore plutot que de renvoyer une page vide.
+  let usedFirestoreFallback = false;
+  let listingsForFinalize = allNormalized;
+
+  if (allNormalized.length === 0 && firestoreService.isEnabled()) {
+    try {
+      const fallback = await firestoreService.searchListings(criteria, { limit: 500 });
+      if (fallback.length > 0) {
+        listingsForFinalize = fallback;
+        usedFirestoreFallback = true;
+      }
+    } catch (err) {
+      log.warn('aggregator.firestore_fallback_failed', { msg: err.message });
+    }
+  }
+
   const result = finalize({
-    listings: allNormalized,
+    listings: listingsForFinalize,
     criteria,
     startedAt,
-    cacheStatus: { hit: false, ageMinutes: null, fresh },
+    cacheStatus: usedFirestoreFallback
+      ? { hit: true, ageMinutes: null, source: 'firestore_fallback' }
+      : { hit: false, ageMinutes: null, fresh },
     sourceStatsOverride: sourceStats,
     extra: {
       liveCount, errorCount,
@@ -155,7 +175,8 @@ export async function aggregatedSearch(criteria) {
   });
 
   // ÉTAPE 3 : persistance Firestore (async, ne bloque pas la réponse)
-  if (firestoreService.isEnabled() && result.listings.length > 0 && !wantedIds) {
+  // On ne re-persist pas si on vient de lire depuis Firestore.
+  if (firestoreService.isEnabled() && !usedFirestoreFallback && result.listings.length > 0 && !wantedIds) {
     const hash = computeCriteriaHash(criteria);
     const ids = result.listings.map((l) => l.id);
     queueMicrotask(() => {
