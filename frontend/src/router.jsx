@@ -1,15 +1,25 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import AppLayout from './layout/AppLayout.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ResultsPage from './pages/ResultsPage.jsx';
 import ListingDetailPage from './pages/ListingDetailPage.jsx';
 import FavoritesPage from './pages/FavoritesPage.jsx';
-import StatsPage from './pages/StatsPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
 import RequireAuth from './components/auth/RequireAuth.jsx';
+import LoadingState from './components/ui/LoadingState.jsx';
+
+// La page Stats embarque Recharts (~400 kB) — on la code-split pour qu'elle
+// ne penalise pas le bundle principal des autres pages.
+const StatsPage = lazy(() => import('./pages/StatsPage.jsx'));
+const StatsPageSuspense = () => (
+  <Suspense fallback={<div className="container" style={{ padding: 'var(--space-8) 0' }}><LoadingState count={2} /></div>}>
+    <StatsPage />
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   // Pages d'auth — publiques, sans AppLayout (header/footer cachés)
@@ -27,7 +37,7 @@ export const router = createBrowserRouter([
       { path: 'search', element: <ResultsPage /> },
       { path: 'listing/:id', element: <ListingDetailPage /> },
       { path: 'favorites', element: <FavoritesPage /> },
-      { path: 'stats', element: <StatsPage /> },
+      { path: 'stats', element: <StatsPageSuspense /> },
       { path: 'account', element: <AccountPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

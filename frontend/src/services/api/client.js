@@ -53,11 +53,13 @@ export const apiClient = {
   listing: (id) => request(`/api/listings/${encodeURIComponent(id)}`),
   estimate: (criteria) => request('/api/estimate', { query: criteria }),
   stats: {
-    overview:  () => request('/api/stats/overview'),
-    prices:    (q) => request('/api/stats/prices', { query: q }),
-    topModels: (q) => request('/api/stats/top-models', { query: q }),
-    coverage:  () => request('/api/stats/coverage'),
-    volume:    (days) => request('/api/stats/volume', { query: { days } }),
+    overview:     () => request('/api/stats/overview'),
+    prices:       (q) => request('/api/stats/prices', { query: q }),
+    topModels:    (q) => request('/api/stats/top-models', { query: q }),
+    coverage:     () => request('/api/stats/coverage'),
+    volume:       (days) => request('/api/stats/volume', { query: { days } }),
+    countries:    () => request('/api/stats/countries'),
+    distribution: (q) => request('/api/stats/distribution', { query: q }),
   },
   me: () => request('/api/me'),
   favorites: {

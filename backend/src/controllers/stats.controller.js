@@ -43,3 +43,20 @@ export async function volume(req, res) {
   const volume = await firestoreService.volumeByDay({ days });
   res.json({ volume });
 }
+
+export async function countries(_req, res) {
+  if (!firestoreService.isEnabled()) return notAvailable(res);
+  const breakdown = await firestoreService.breakdownByCountry();
+  res.json({ countries: breakdown });
+}
+
+export async function distribution(req, res) {
+  if (!firestoreService.isEnabled()) return notAvailable(res);
+  const { make, model, country, daysWindow, buckets } = req.query;
+  const dist = await firestoreService.priceDistribution({
+    make, model, country,
+    daysWindow: parseInt(daysWindow, 10) || 60,
+    buckets: parseInt(buckets, 10) || 12,
+  });
+  res.json({ distribution: dist });
+}

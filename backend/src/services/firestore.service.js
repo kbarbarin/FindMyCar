@@ -256,6 +256,49 @@ export const firestoreService = {
     return [...counts.entries()].map(([sourceId, count]) => ({ sourceId, count })).sort((a, b) => b.count - a.count);
   },
 
+  async breakdownByCountry({ limit = 10000 } = {}) {
+    if (!enabled) return [];
+    const snap = await db.collection('listings').select('country').limit(limit).get();
+    const counts = new Map();
+    for (const d of snap.docs) {
+      const c = d.data().country || 'XX';
+      counts.set(c, (counts.get(c) || 0) + 1);
+    }
+    return [...counts.entries()]
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count);
+  },
+
+  // Repartition de prix par tranche (histogramme) — utile pour la page marche
+  async priceDistribution({ make, model, country, daysWindow = 60, buckets = 12 } = {}) {
+    if (!enabled) return null;
+    const cutoff = Timestamp.fromMillis(Date.now() - daysWindow * 86400000);
+    let q = db.collection('listings').where('lastSeenAt', '>', cutoff).limit(5000);
+    if (make) q = q.where('make', '==', make);
+    if (model) q = q.where('model', '==', model);
+    if (country) q = q.where('country', '==', country);
+    const snap = await q.get();
+    const prices = snap.docs.map((d) => d.data().price?.amount).filter((p) => p != null && p > 0);
+    if (!prices.length) return null;
+    prices.sort((a, b) => a - b);
+    // Bornes p5 / p95 pour eviter les outliers
+    const lo = prices[Math.floor(prices.length * 0.05)];
+    const hi = prices[Math.floor(prices.length * 0.95)];
+    const step = (hi - lo) / buckets || 1;
+    const dist = Array.from({ length: buckets }, (_, i) => ({
+      from: Math.round(lo + i * step),
+      to: Math.round(lo + (i + 1) * step),
+      count: 0,
+    }));
+    for (const p of prices) {
+      if (p < lo) { dist[0].count++; continue; }
+      if (p >= hi) { dist[dist.length - 1].count++; continue; }
+      const idx = Math.min(dist.length - 1, Math.floor((p - lo) / step));
+      dist[idx].count++;
+    }
+    return { total: prices.length, lo, hi, step: Math.round(step), buckets: dist };
+  },
+
   async volumeByDay({ days = 30 } = {}) {
     if (!enabled) return [];
     const cutoff = Timestamp.fromMillis(Date.now() - days * 86400000);
