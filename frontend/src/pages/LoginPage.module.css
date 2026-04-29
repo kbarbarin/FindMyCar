@@ -53,3 +53,9 @@
   font-weight: var(--weight-medium);
 }
 .link:hover { color: var(--color-accent-hover); }
+
+@media (max-width: 480px) {
+  .wrap { padding: var(--space-6) 0; }
+  .card { padding: var(--space-5); border-radius: var(--radius-md); }
+  .title { font-size: var(--text-xl); }
+}

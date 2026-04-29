@@ -232,7 +232,15 @@
   .side { position: static; order: -1; }
   .features { grid-template-columns: repeat(2, 1fr); }
 }
-@media (max-width: 540px) {
+@media (max-width: 720px) {
+  .title { font-size: var(--text-lg); }
   .price { font-size: var(--text-2xl); }
-  .features { grid-template-columns: 1fr 1fr; }
+  .photo:first-child { aspect-ratio: 4 / 3; }
+}
+@media (max-width: 480px) {
+  .price { font-size: var(--text-xl); }
+  .features { grid-template-columns: 1fr; }
+  .actions { gap: var(--space-2); }
+  .externalLink { font-size: 11px; padding: 9px 12px; }
+  .externalLinkPrimary { padding: 11px 14px; }
 }

@@ -76,3 +76,9 @@
   font-size: var(--text-xs);
   color: var(--color-text-muted);
 }
+
+@media (max-width: 480px) {
+  .wrap { padding: var(--space-6) 0; }
+  .card { padding: var(--space-5); border-radius: var(--radius-md); }
+  .row { grid-template-columns: 1fr; gap: 4px; padding: var(--space-2) 0; }
+}

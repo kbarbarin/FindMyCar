@@ -153,11 +153,20 @@
 }
 
 @media (max-width: 1024px) {
-  .top { grid-template-columns: 1fr 1fr; }
+  .top { grid-template-columns: 1fr 1fr; gap: var(--space-6); }
   .brandCol { grid-column: 1 / -1; }
   .bigMark { font-size: 44px; }
 }
 @media (max-width: 640px) {
-  .top { grid-template-columns: 1fr; gap: var(--space-6); }
-  .bigMark { font-size: 36px; }
+  .footer { padding: var(--space-8) 0 var(--space-5); margin-top: var(--space-10); }
+  .top { grid-template-columns: 1fr; gap: var(--space-5); }
+  .bigMark { font-size: 32px; }
+  .note { max-width: 100%; }
+  /* Evite que les libelles longs des sources fassent deborder la ligne */
+  .sources li { font-size: var(--text-xs); }
+  .sources li > * { min-width: 0; overflow-wrap: break-word; }
+}
+@media (max-width: 380px) {
+  .bigMark { font-size: 28px; }
+  .bottom { font-size: 10px; gap: var(--space-2); }
 }

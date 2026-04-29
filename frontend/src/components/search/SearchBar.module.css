@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: var(--space-4);
   width: 100%;
+  min-width: 0;
 }
 
 .barFrame {
@@ -17,6 +18,7 @@
   gap: 12px;
   transition: border-color var(--transition-base), box-shadow var(--transition-base);
   overflow: hidden;
+  min-width: 0;
 }
 
 /* Scan line — voyant ambre qui balaie une fois au focus */
@@ -180,13 +182,28 @@
 
 @media (max-width: 720px) {
   .barFrame { padding: 4px 4px 4px 14px !important; gap: 8px; }
-  .size_lg .barInput { height: 52px; font-size: var(--text-base); }
-  .size_lg .barInput::placeholder { font-size: var(--text-md); }
+  /* 16px mini sur mobile pour eviter le zoom iOS au focus */
+  .size_lg .barInput { height: 52px; font-size: 16px; }
+  .size_md .barInput { height: 44px; font-size: 16px; }
+  .size_lg .barInput::placeholder { font-size: var(--text-base); }
+  .size_md .barInput::placeholder { font-size: var(--text-base); }
   .barSubmit span { display: none; }
   .barSubmit { padding: 0 14px !important; }
+  .sample { font-size: var(--text-xs); padding: 5px 10px 5px 5px; }
+  .sampleTag { font-size: 8px; padding: 3px 6px; }
 }
 @media (max-width: 480px) {
+  .barFrame { padding: 3px 3px 3px 12px !important; gap: 6px; }
   .sampleLabel { width: 100%; padding-top: 0; }
+  .samples { gap: var(--space-2); }
+  .sample {
+    /* Wrap interne plutot qu'overflow horizontal */
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+  .bulkLink { font-size: 10px; padding: 7px 12px; letter-spacing: 0.08em; }
 }
 
 /* Lien "Sonder toutes les plateformes" — action secondaire discrete */

@@ -75,3 +75,11 @@
   color: var(--color-danger);
   font-weight: var(--weight-medium);
 }
+
+/* Mobile : 16px minimum sur l'input pour eviter le zoom iOS Safari au focus.
+   Hauteur tactile augmentee a 44px (recommandation Apple HIG). */
+@media (max-width: 720px) {
+  .input { font-size: 16px; height: 44px; }
+  .input::placeholder { font-size: var(--text-base); }
+  .field { padding: 0 12px; }
+}

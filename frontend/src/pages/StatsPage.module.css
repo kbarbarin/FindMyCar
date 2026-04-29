@@ -245,3 +245,16 @@
 @media (max-width: 900px) {
   .kpis, .grid { grid-template-columns: 1fr; }
 }
+@media (max-width: 720px) {
+  .header h1 { font-size: var(--text-2xl); }
+  .kpiCard { padding: var(--space-4); }
+  .kpiValue { font-size: 28px; }
+  .chart { height: 160px; }
+  .topList li { grid-template-columns: 28px 1fr auto; gap: var(--space-2); padding: 8px 10px; }
+}
+@media (max-width: 480px) {
+  .header { margin-bottom: var(--space-5); }
+  .kpiValue { font-size: 24px; }
+  .chart { height: 120px; gap: 2px; }
+  .chartBar { border-radius: 1px 1px 0 0; }
+}

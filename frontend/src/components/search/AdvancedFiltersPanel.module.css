@@ -162,3 +162,15 @@
     padding: var(--space-4) !important;
   }
 }
+
+@media (max-width: 720px) {
+  /* Tap target plus genereux sur mobile pour les chips (filtres carburant, pays, etc.) */
+  .chip { padding: 8px 12px; font-size: var(--text-sm); }
+  .checkRow { font-size: var(--text-base); padding: 10px 0; }
+  .row2 { gap: var(--space-3); }
+  .bulkBtn { padding: 7px 12px; font-size: 11px; }
+}
+
+@media (max-width: 480px) {
+  .row2 { grid-template-columns: 1fr; }
+}

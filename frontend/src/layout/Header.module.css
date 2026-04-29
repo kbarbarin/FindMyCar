@@ -42,6 +42,7 @@
   justify-content: space-between;
   height: var(--header-height);
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .brand {
@@ -144,14 +145,35 @@
   white-space: nowrap;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1024px) {
+  .row { gap: var(--space-2); }
   .logoTag { display: none; }
-  .navLink span { display: none; }
-  .navLink { padding: 8px 12px; }
-  .userLabel { display: none; }
+  .nav { padding: 3px; }
 }
-@media (max-width: 480px) {
+
+@media (max-width: 720px) {
+  /* Nav et auth zone passent en icon-only. Tap target 40px minimum. */
+  .navLink span { display: none; }
+  .navLink {
+    padding: 8px 10px;
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+    gap: 0;
+  }
+  .userLabel { display: none; }
   .logoText { font-size: 18px; }
   .logoMy { font-size: 20px; }
-  .authZone { margin-left: var(--space-1); }
+  .authZone { margin-left: var(--space-1); gap: 4px; }
+}
+
+@media (max-width: 480px) {
+  /* Cache le wordmark complet pour ne garder que la marque SVG (40px). */
+  .logoTextWrap { display: none; }
+  /* Inscription n'a pas d'icone — on la masque en mobile etroit pour gagner
+     de la place; l'utilisateur peut s'inscrire depuis /login. */
+  .navLinkAccent { display: none; }
+  .row { gap: 6px; }
+  .nav { padding: 2px; }
+  .navLink { padding: 6px 8px; min-width: 36px; min-height: 36px; }
 }

@@ -75,13 +75,13 @@ export default function Header() {
                 <span className={styles.userLabel}>{user?.displayName || user?.email}</span>
               </NavLink>
               <button type="button" className={styles.navLink} onClick={() => signOut()}>
-                <LogOut size={16} /> Se déconnecter
+                <LogOut size={16} /> <span>Se déconnecter</span>
               </button>
             </>
           ) : (
             <>
               <NavLink to="/login" className={({ isActive }) => [styles.navLink, isActive ? styles.navLinkActive : ''].join(' ')}>
-                <LogIn size={16} /> Connexion
+                <LogIn size={16} /> <span>Connexion</span>
               </NavLink>
               <NavLink to="/register" className={({ isActive }) => [styles.navLink, styles.navLinkAccent, isActive ? styles.navLinkActive : ''].join(' ')}>
                 Inscription

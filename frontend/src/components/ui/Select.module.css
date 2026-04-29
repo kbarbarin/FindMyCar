@@ -58,3 +58,8 @@
 
 .hint  { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--color-text-subtle); }
 .error { font-size: var(--text-xs); color: var(--color-danger); font-weight: var(--weight-medium); }
+
+/* Mobile : 16px minimum pour eviter le zoom iOS Safari au focus, hauteur tactile 44px */
+@media (max-width: 720px) {
+  .select { font-size: 16px; height: 44px; padding: 0 36px 0 12px; }
+}

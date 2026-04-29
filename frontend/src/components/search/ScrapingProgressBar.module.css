@@ -212,7 +212,17 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 720px) {
-  .cluster { grid-template-columns: 1fr; gap: var(--space-4); }
+  .cluster { grid-template-columns: 1fr; gap: var(--space-4); padding: var(--space-4); }
   .gauge { max-width: 240px; margin: 0 auto; }
   .metricsGrid { grid-template-columns: repeat(2, 1fr); }
+  .metricValue { font-size: 20px; }
+  .tape { gap: 3px; }
+  .tapeCell { font-size: 9px; padding: 3px 6px; }
+}
+@media (max-width: 480px) {
+  .cluster { padding: var(--space-3); }
+  .metric { padding: 8px 10px; }
+  .metricValue { font-size: 18px; }
+  .gaugeReadingValue { font-size: 24px; }
+  .metricsHeader { flex-direction: column; align-items: flex-start; gap: 4px; }
 }

@@ -159,3 +159,28 @@
 
 .spinning { animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 720px) {
+  .header { padding: 12px var(--space-4); flex-wrap: wrap; }
+  .summary { margin-left: 0; width: 100%; }
+  .toolbar { padding: var(--space-3) var(--space-4) 0; flex-wrap: wrap; }
+  .grid { grid-template-columns: 1fr; padding: var(--space-3) var(--space-4) var(--space-4); gap: var(--space-4); }
+}
+
+@media (max-width: 480px) {
+  /* La row 5-col deborde a 375px : on la repense en 2 lignes :
+     ligne 1 = icon + label + retry, ligne 2 (offset) = status + duration */
+  .row {
+    grid-template-columns: 26px 1fr auto;
+    grid-template-areas:
+      'icon label retry'
+      'status status duration';
+    gap: 4px 8px;
+    padding: 8px;
+  }
+  .statusIcon { grid-area: icon; }
+  .sourceLabel { grid-area: label; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .statusText { grid-area: status; }
+  .duration { grid-area: duration; min-width: auto; }
+  .retryBtn { grid-area: retry; }
+}
