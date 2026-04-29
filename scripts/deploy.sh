@@ -52,8 +52,16 @@ deploy_frontend() {
 }
 
 deploy_firestore() {
-  echo "═══ Deploy Firestore rules + indexes ═══"
-  firebase deploy --only firestore --project="$PROJECT_ID"
+  echo "═══ Deploy Firestore rules ═══"
+  firebase deploy --only firestore:rules --project="$PROJECT_ID"
+
+  echo "═══ Deploy Firestore indexes ═══"
+  # Les indexes peuvent renvoyer 400 si Firestore juge un index single-field
+  # redondant (creation automatique). C'est non-fatal : on continue le pipeline.
+  if ! firebase deploy --only firestore:indexes --project="$PROJECT_ID"; then
+    echo "⚠ Deploy des indexes echoue (souvent un index single-field redondant)."
+    echo "  Le reste du pipeline continue. Verifie firestore.indexes.json si besoin."
+  fi
 }
 
 deploy_scheduler() {
