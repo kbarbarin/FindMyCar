@@ -12,19 +12,23 @@ import AccountPage from './pages/AccountPage.jsx';
 import RequireAuth from './components/auth/RequireAuth.jsx';
 
 export const router = createBrowserRouter([
+  // Pages d'auth — publiques, sans AppLayout (header/footer cachés)
+  { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
+
+  // Tout le reste du site est gate : RequireAuth wrap l'AppLayout entier,
+  // donc tout enfant herite de la garde. Pas connecte -> redirect /login.
   {
     path: '/',
-    element: <AppLayout />,
+    element: <RequireAuth><AppLayout /></RequireAuth>,
     errorElement: <NotFoundPage />,
     children: [
       { index: true, element: <HomePage /> },
       { path: 'search', element: <ResultsPage /> },
       { path: 'listing/:id', element: <ListingDetailPage /> },
-      { path: 'favorites', element: <RequireAuth><FavoritesPage /></RequireAuth> },
+      { path: 'favorites', element: <FavoritesPage /> },
       { path: 'stats', element: <StatsPage /> },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'register', element: <RegisterPage /> },
-      { path: 'account', element: <RequireAuth><AccountPage /></RequireAuth> },
+      { path: 'account', element: <AccountPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
